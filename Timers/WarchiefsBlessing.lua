@@ -18,18 +18,6 @@ function FADEWT.WCB:Tick()
         frame.title:SetText(FADEWT.WCB:GetTimerStatus(key, frame))
     end
 end
-function dump(o)
-    if type(o) == 'table' then
-       local s = '{ '
-       for k,v in pairs(o) do
-          if type(k) ~= 'number' then k = '"'..k..'"' end
-          s = s .. '['..k..'] = ' .. dump(v) .. ','
-       end
-       return s .. '} '
-    else
-       return tostring(o)
-    end
- end
 
 function FADEWT.WCB:GetTimerStatus(key, f)
     local WCBTime = WCBTimers[key]
