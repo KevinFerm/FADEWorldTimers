@@ -1,0 +1,12 @@
+## Interface: 11303
+## Title: FADEWorldTimers
+## Author: Netzone
+## Version: 1.0
+## DefaultState: Enabled
+## SavedVariables: SongflowerTimers, OnyxiaTimers, WCBTimers
+Libs\main.xml
+
+FADEWorldTimers.lua
+Timers\Songflower.lua
+Timers\Onyxia.lua
+Timers\WarchiefsBlessing.lua
