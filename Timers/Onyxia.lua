@@ -6,6 +6,7 @@ local Serializer = LibStub("AceSerializer-3.0")
 
 FADEWT.Onyxia = {}
 FADEWT.Onyxia.Icon = "Interface\\Icons\\Inv_misc_head_dragon_01"
+FADEWT.Onyxia.LastEventAt = GetServerTime() - 10
 
 FADEWT.Onyxia.TimerLength = (60 * 60) * 6
 FADEWT.Onyxia.Frames = {}
@@ -19,18 +20,6 @@ function FADEWT.Onyxia:Tick()
         frame.title:SetText(FADEWT.Onyxia:GetTimerStatus(key, frame))
     end
 end
-function dump(o)
-    if type(o) == 'table' then
-       local s = '{ '
-       for k,v in pairs(o) do
-          if type(k) ~= 'number' then k = '"'..k..'"' end
-          s = s .. '['..k..'] = ' .. dump(v) .. ','
-       end
-       return s .. '} '
-    else
-       return tostring(o)
-    end
- end
 
 function FADEWT.Onyxia:GetTimerStatus(key, f)
     local onyxiaTime = OnyxiaTimers[key]
@@ -98,7 +87,6 @@ function FADEWT.Onyxia:OnUnitAura(unit)
     if unit == "player" then
         local name, expirationTime, sid, _
         -- Todo: Check if this causes issues
-        FADEWT.Onyxia:SendBroadcastIfActiveTimer()
         for i = 1, 40 do
             name, _, _, _, _, expirationTime, _, _, _, sid = UnitAura("player", i, "HELPFUL")
             -- Check for buff Songflower Serenade
@@ -112,6 +100,7 @@ function FADEWT.Onyxia:OnUnitAura(unit)
                 end
             end
         end
+        FADEWT.Onyxia:SendBroadcastIfActiveTimer()
     end
 end
 
@@ -183,6 +172,7 @@ function FADEWT.Onyxia:SendBroadcastIfActiveTimer()
 end
 
 function FADEWT.Onyxia:BroadcastTimers()
+    if (GetServerTime() - FADEWT.Onyxia.LastEventAt) <= 10 then return end
     local serializedTimers = Serializer:Serialize(OnyxiaTimers)
 
     Comm:SendCommMessage("FADEWT-ONY", serializedTimers, "YELL");
@@ -194,6 +184,7 @@ function FADEWT.Onyxia:BroadcastTimers()
     if (GetGuildInfo("player") ~= nil) then
         Comm:SendCommMessage("FADEWT-ONY", serializedTimers, "GUILD");
     end
+    FADEWT.Onyxia.LastEventAt = GetServerTime()
 end
 
 -- Register our World Timer

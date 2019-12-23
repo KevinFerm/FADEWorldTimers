@@ -8,6 +8,7 @@ FADEWT.Songflower = {}
 FADEWT.Songflower.Icon = "Interface\\Icons\\spell_holy_mindvision"
 FADEWT.Songflower.TimerLength = 25 * 60
 FADEWT.Songflower.Frames = {}
+FADEWT.Songflower.LastEventAt = GetServerTime() - 10
 FADEWT.Songflower.COMMKEY = "Songbird-1"
 FADEWT.Songflower.Locations = {
     ["south1"] = {52.9, 87.83},
@@ -51,6 +52,7 @@ function FADEWT.Songflower:ReceiveTimers(message, distribution, sender)
 end
 
 function FADEWT.Songflower:BroadcastTimers()
+    if (GetServerTime() - FADEWT.Songflower.LastEventAt) <= 10 then return end
     local serializedTimers = Serializer:Serialize(SongflowerTimers)
 
     Comm:SendCommMessage(FADEWT.Songflower.COMMKEY , serializedTimers, "YELL");
@@ -62,6 +64,7 @@ function FADEWT.Songflower:BroadcastTimers()
     if (GetGuildInfo("player") ~= nil) then
         Comm:SendCommMessage(FADEWT.Songflower.COMMKEY , serializedTimers, "GUILD");
     end
+    FADEWT.Songflower.LastEventAt = GetServerTime()
 end
 
 
@@ -178,6 +181,7 @@ function FADEWT.Songflower:OnUnitAura(unit)
                 end
             end
         end
+        FADEWT.Songflower:SendBroadcastIfActiveTimer()
     end
 end
 

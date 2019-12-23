@@ -6,7 +6,7 @@ local Serializer = LibStub("AceSerializer-3.0")
 
 FADEWT.WCB = {}
 FADEWT.WCB.Icon = "Interface\\Icons\\spell_arcane_teleportorgrimmar"
-
+FADEWT.WCB.LastEventAt = GetServerTime() - 10
 FADEWT.WCB.TimerLength = (60 * 60) * 3
 FADEWT.WCB.Frames = {}
 FADEWT.WCB.Locations = {
@@ -99,7 +99,6 @@ function FADEWT.WCB:OnUnitAura(unit)
     if unit == "player" then
         local name, expirationTime, sid, _
         -- Todo: Check if this causes issues
-        FADEWT.WCB:SendBroadcastIfActiveTimer()
         for i = 1, 40 do
             name, _, _, _, _, expirationTime, _, _, _, sid = UnitAura("player", i, "HELPFUL")
             -- Check for buff Songflower Serenade
@@ -113,6 +112,7 @@ function FADEWT.WCB:OnUnitAura(unit)
                 end
             end
         end
+        FADEWT.WCB:SendBroadcastIfActiveTimer()
     end
 end
 
@@ -171,6 +171,7 @@ end
 
 
 function FADEWT.WCB:BroadcastTimers()
+    if (GetServerTime() - FADEWT.WCB.LastEventAt) <= 10 then return end
     local serializedTimers = Serializer:Serialize(WCBTimers)
 
     Comm:SendCommMessage("FADEWT-WCB", serializedTimers, "YELL");
@@ -182,6 +183,7 @@ function FADEWT.WCB:BroadcastTimers()
     if (GetGuildInfo("player") ~= nil) then
         Comm:SendCommMessage("FADEWT-WCB", serializedTimers, "GUILD");
     end
+    FADEWT.WCB.LastEventAt = GetServerTime()
 end
 
 -- Register our World Timer
