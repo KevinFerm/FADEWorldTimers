@@ -106,7 +106,7 @@ function FADEWT.WCB:OnUnitAura(unit)
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                if (expirationTime - currTime) >= (60 * 60) - 5 then
+                if (expirationTime - currTime) >= (60 * 60) - 2 then
                     local zId, zT = HBD:GetPlayerZone()
                     FADEWT.WCB:ReceiveWCBBuff(tostring(zId))
                 end

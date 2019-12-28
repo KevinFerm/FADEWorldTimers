@@ -94,7 +94,7 @@ function FADEWT.Onyxia:OnUnitAura(unit)
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                if (expirationTime - currTime) >= (60 * 120) - 5 then
+                if (expirationTime - currTime) >= (60 * 120) - 2 then
                     local zId, zT = HBD:GetPlayerZone()
                     FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
                 end
