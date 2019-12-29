@@ -154,7 +154,6 @@ function FADEWT.Songflower:OnUnitAura(unit)
     if unit == "player" then
         local name, expirationTime, sid, _
         -- Todo: Check if this causes issues
-        --Songbird:SendBroadcastIfActiveTimer()
         for i = 1, 40 do
             name, _, _, _, _, expirationTime, _, _, _, sid = UnitAura("player", i, "HELPFUL")
             -- Check for buff Songflower Serenade
@@ -162,15 +161,15 @@ function FADEWT.Songflower:OnUnitAura(unit)
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                if (expirationTime - currTime)/60 == 60 then
+                if (expirationTime - currTime)/60 >= 60 then
 
                     local zId, zT = HBD:GetPlayerZone()
                     -- Validate zone just in case
                     if not zId == 1448 then break end
 
                     local x,y,instance = HBD:GetPlayerZonePosition()
-                    --x = math.floor(x * 100)
-                    --y = math.floor(y * 100)
+                    x = x * 100
+                    y = y * 100
 
                     -- Check so that the position is valid
                     local key = FADEWT.Songflower:ValidatePlayerPosition(x,y)
