@@ -151,7 +151,7 @@ function FADEWT.Songflower:OnUnitAura(unit)
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                if (expirationTime - currTime)/60 >= 60 then
+                if (expirationTime - currTime) >= (60 * 60) - 2 then
 
                     local zId, zT = HBD:GetPlayerZone()
                     -- Validate zone just in case
@@ -163,6 +163,7 @@ function FADEWT.Songflower:OnUnitAura(unit)
 
                     -- Check so that the position is valid
                     local key = FADEWT.Songflower:ValidatePlayerPosition(x,y)
+
                     if key then
                         -- We know that the songflower was just picked
                         FADEWT.Songflower:PickSongflower(key)
