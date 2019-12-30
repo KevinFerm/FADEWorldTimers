@@ -10,6 +10,7 @@ FADEWT.Onyxia.LastEventAt = GetServerTime() - 10
 
 FADEWT.Onyxia.TimerLength = (60 * 60) * 6
 FADEWT.Onyxia.Frames = {}
+FADEWT.Onyxia.COMMKEY = "FADEWT-ONY"
 FADEWT.Onyxia.Locations = {
     ["1453"] = {60.50, 75.20},
     ["1454"] = {51.73, 77.69},
@@ -55,11 +56,15 @@ function FADEWT.Onyxia:GetTimerStatus(key, f)
     return ""
 end
 
-function FADEWT.Onyxia:ReceiveTimers(message, distribution, sender)
-    local ok, receivedTimers = Serializer:Deserialize(message)
-    if not ok or not receivedTimers then return end
+function FADEWT.Onyxia:GetMessageData()
+    return FADEWT.Onyxia.COMMKEY, OnyxiaTimers
+end
+
+function FADEWT.Onyxia.ReceiveTimers(message, distribution, sender)
+    --local ok, receivedTimers = Serializer:Deserialize(message)
+    if not message then return end
     local didChange = false
-    for key,timer in pairs(receivedTimers) do
+    for key,timer in pairs(message) do
         if timer ~= false and (OnyxiaTimers[key] == nil or OnyxiaTimers[key] == false) then
             OnyxiaTimers[key] = timer
             didChange = true
@@ -130,8 +135,11 @@ end
 
 
 function FADEWT.Onyxia:Init()
-    FADEWT.Onyxia:CreateFrames()
-    Comm:RegisterComm("FADEWT-ONY", FADEWT.Onyxia.ReceiveTimers)
+    if FADEWTConfig.OnyxiaHidden ~= true then
+        FADEWT.Onyxia:CreateFrames()
+    end
+    --Comm:RegisterComm("FADEWT-ONY", FADEWT.Onyxia.ReceiveTimers)
+    FADEWT:RegisterMessageHandler(FADEWT.Onyxia.COMMKEY, FADEWT.Onyxia.ReceiveTimers)
 end
 
 -- Setup the frame
@@ -172,19 +180,7 @@ function FADEWT.Onyxia:SendBroadcastIfActiveTimer()
 end
 
 function FADEWT.Onyxia:BroadcastTimers()
-    if (GetServerTime() - FADEWT.Onyxia.LastEventAt) <= 10 then return end
-    local serializedTimers = Serializer:Serialize(OnyxiaTimers)
-
-    Comm:SendCommMessage("FADEWT-ONY", serializedTimers, "YELL");
-
-    if (IsInRaid()) then
-        Comm:SendCommMessage("FADEWT-ONY", serializedTimers, "RAID");
-    end
-
-    if (GetGuildInfo("player") ~= nil) then
-        Comm:SendCommMessage("FADEWT-ONY", serializedTimers, "GUILD");
-    end
-    FADEWT.Onyxia.LastEventAt = GetServerTime()
+    FADEWT:SendMessage()
 end
 
 -- Register our World Timer

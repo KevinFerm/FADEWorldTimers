@@ -29,12 +29,14 @@ function FADEWT.Songflower:Tick()
     end
 end
 
-function FADEWT.Songflower:ReceiveTimers(message, distribution, sender)
-    local ok, receivedTimers = Serializer:Deserialize(message);
-    
-    if not ok or not receivedTimers then return end
+function FADEWT.Songflower:GetMessageData()
+    return FADEWT.Songflower.COMMKEY, SongflowerTimers
+end
+
+function FADEWT.Songflower.ReceiveTimers(message, distribution, sender)
+    if not message then return end
     local didChange = false
-    for key,timer in pairs(receivedTimers) do
+    for key,timer in pairs(message) do
         if timer ~= false and (SongflowerTimers[key] == nil or SongflowerTimers[key] == false) then
             SongflowerTimers[key] = timer
             didChange = true
@@ -52,19 +54,7 @@ function FADEWT.Songflower:ReceiveTimers(message, distribution, sender)
 end
 
 function FADEWT.Songflower:BroadcastTimers()
-    if (GetServerTime() - FADEWT.Songflower.LastEventAt) <= 10 then return end
-    local serializedTimers = Serializer:Serialize(SongflowerTimers)
-
-    Comm:SendCommMessage(FADEWT.Songflower.COMMKEY , serializedTimers, "YELL");
-
-    if (IsInRaid()) then
-        Comm:SendCommMessage(FADEWT.Songflower.COMMKEY , serializedTimers, "RAID");
-    end
-
-    if (GetGuildInfo("player") ~= nil) then
-        Comm:SendCommMessage(FADEWT.Songflower.COMMKEY , serializedTimers, "GUILD");
-    end
-    FADEWT.Songflower.LastEventAt = GetServerTime()
+    FADEWT:SendMessage()
 end
 
 
@@ -194,8 +184,11 @@ end
 
 
 function FADEWT.Songflower:Init()
-    FADEWT.Songflower:CreateFrames()
-    Comm:RegisterComm(FADEWT.Songflower.COMMKEY, FADEWT.Songflower.ReceiveTimers)
+    if FADEWTConfig.SongflowerHidden ~= true then
+        FADEWT.Songflower:CreateFrames()
+    end
+    --Comm:RegisterComm(FADEWT.Songflower.COMMKEY, FADEWT.Songflower.ReceiveTimers)
+    FADEWT:RegisterMessageHandler(FADEWT.Songflower.COMMKEY, FADEWT.Songflower.ReceiveTimers)
 end
 
 

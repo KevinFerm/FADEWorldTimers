@@ -9,6 +9,7 @@ FADEWT.WCB.Icon = "Interface\\Icons\\spell_arcane_teleportorgrimmar"
 FADEWT.WCB.LastEventAt = GetServerTime() - 10
 FADEWT.WCB.TimerLength = (60 * 60) * 3
 FADEWT.WCB.Frames = {}
+FADEWT.WCB.COMMKEY = "FADEWT-WCB"
 FADEWT.WCB.Locations = {
     ["1454"] = {45, 30},
 }
@@ -18,6 +19,11 @@ function FADEWT.WCB:Tick()
         frame.title:SetText(FADEWT.WCB:GetTimerStatus(key, frame))
     end
 end
+
+function FADEWT.WCB:GetMessageData()
+    return FADEWT.WCB.COMMKEY, WCBTimers
+end
+
 
 function FADEWT.WCB:GetTimerStatus(key, f)
     local WCBTime = WCBTimers[key]
@@ -53,11 +59,11 @@ function FADEWT.WCB:GetTimerStatus(key, f)
     return ""
 end
 
-function FADEWT.WCB:ReceiveTimers(message, distribution, sender)
-    local ok, receivedTimers = Serializer:Deserialize(message);
-    if not ok or not receivedTimers then return end
+function FADEWT.WCB.ReceiveTimers(message, distribution, sender)
+    --local ok, receivedTimers = Serializer:Deserialize(message);
+    if not message then return end
     local didChange = false
-    for key,timer in pairs(receivedTimers) do
+    for key,timer in pairs(message) do
         if timer ~= false and (WCBTimers[key] == nil or WCBTimers[key] == false) then
             WCBTimers[key] = timer
             didChange = true
@@ -142,8 +148,11 @@ end
 
 
 function FADEWT.WCB:Init()
-    FADEWT.WCB:CreateFrames()
-    Comm:RegisterComm("FADEWT-WCB", FADEWT.WCB.ReceiveTimers)
+    if FADEWTConfig.WCBHidden ~= true then
+        FADEWT.WCB:CreateFrames()
+    end
+    --Comm:RegisterComm("FADEWT-WCB", FADEWT.WCB.ReceiveTimers)
+    FADEWT:RegisterMessageHandler(FADEWT.WCB.COMMKEY, FADEWT.WCB.ReceiveTimers)
 end
 
 -- Setup the frame
@@ -171,19 +180,7 @@ end
 
 
 function FADEWT.WCB:BroadcastTimers()
-    if (GetServerTime() - FADEWT.WCB.LastEventAt) <= 10 then return end
-    local serializedTimers = Serializer:Serialize(WCBTimers)
-
-    Comm:SendCommMessage("FADEWT-WCB", serializedTimers, "YELL");
-
-    if (IsInRaid()) then
-        Comm:SendCommMessage("FADEWT-WCB", serializedTimers, "RAID");
-    end
-
-    if (GetGuildInfo("player") ~= nil) then
-        Comm:SendCommMessage("FADEWT-WCB", serializedTimers, "GUILD");
-    end
-    FADEWT.WCB.LastEventAt = GetServerTime()
+    FADEWT:SendMessage()
 end
 
 -- Register our World Timer

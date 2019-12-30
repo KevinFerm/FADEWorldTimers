@@ -5,6 +5,7 @@ local AceTimer = LibStub("AceTimer-3.0")
 local Serializer = LibStub("AceSerializer-3.0")
 local Comm = LibStub("AceComm-3.0")
 
+
 ------ INITIALIZE ADDON CORE
 -----------------------
 
@@ -16,31 +17,31 @@ local Comm = LibStub("AceComm-3.0")
 -- function Tick - Runs every tick, handles timers on map and their visuals
 FADEWT.WorldTimers = {}
 
--- Fires the OnUnitAura on every WorldTimer that has the function when UNIT_AURA event is fired
-function FADEWT:OnUnitAura(self, unit)
+FADEWT.MessageCallbacks = {}
+FADEWT.COMMKEY = "FADEWT-1"
+FADEWT.LastEventAt = GetServerTime() - 10
+
+-- Initializes our addon
+function FADEWT:Init()
+    -- Create an empty DB if need be
+    FADEWT:SetupDB()
+
+    --Songbird:createNodes()
+    local Frame = CreateFrame("Frame", nil, UIParent)
+
+    -- Update the active songflower timers every second
+    AceTimer:ScheduleRepeatingTimer(FADEWT.Tick, 1)
+
+    -- Register event on UNIT_AURA so we can check if player got Songflower
+    Frame:RegisterEvent("UNIT_AURA")
+    Frame:RegisterEvent("CHAT_MSG_LOOT")
+    Frame:SetScript("OnEvent", FADEWT.HandleEvent)
+    Comm:RegisterComm(FADEWT.COMMKEY, FADEWT.HandleMessage)
+    --Comm:RegisterComm("FADEWorldTimers", FADEWT.RecvTimers)
+
     for _,Timer in ipairs(FADEWT.WorldTimers) do
-        if Timer.OnUnitAura ~= nil then
-            Timer:OnUnitAura(unit)
-        end
-    end
-end
-
--- Sets up SavedVariabled for all registered timers
-function FADEWT:SetupDB()
-    for _, Timer in ipairs(FADEWT.WorldTimers) do
-        if Timer.SetupDB ~= nil then
-            Timer:SetupDB()
-        end
-    end
-end
-
--- This fires every second
--- Is meant to update the timers
--- No need to do it more often, would only cause lag issues
-function FADEWT:Tick()
-    for _, Timer in ipairs(FADEWT.WorldTimers) do
-        if Timer.Tick ~= nil then
-            Timer:Tick()
+        if Timer.Init ~= nil then
+            Timer:Init()
         end
     end
 end
@@ -65,37 +66,87 @@ function FADEWT:Initialize()
     end)
 end
 
-function FADEWT:BroadcastTimers()
-    for _,Timer in ipairs(FADEWT.WorldTimers) do
-        if Timer.BroadcastTimers ~= nil then
-            Timer:BroadcastTimers()
+-- This fires every second
+-- Is meant to update the timers
+-- No need to do it more often, would only cause lag issues
+function FADEWT:Tick()
+    for _, Timer in ipairs(FADEWT.WorldTimers) do
+        if Timer.Tick ~= nil then
+            Timer:Tick()
         end
     end
 end
 
--- Initializes our addon
-function FADEWT:Init()
-    -- Create an empty DB if need be
-    FADEWT:SetupDB()
-
+-- Fires the OnUnitAura on every WorldTimer that has the function when UNIT_AURA event is fired
+function FADEWT:OnUnitAura(self, unit)
     for _,Timer in ipairs(FADEWT.WorldTimers) do
-        if Timer.Init ~= nil then
-            Timer:Init()
+        if Timer.OnUnitAura ~= nil then
+            Timer:OnUnitAura(unit)
+        end
+    end
+end
+
+-- Function for timers to use to register their message handler
+function FADEWT:RegisterMessageHandler(key, fn)
+    FADEWT.MessageCallbacks[key] = fn
+end
+
+-- Handle COMM Messages, send it to the correct message handler, handler needs to be registered to be sent
+function FADEWT:HandleMessage(message, distribution, sender)
+    local ok, decodedMessage = Serializer:Deserialize(message);
+    if not ok or not decodedMessage then return false end
+    for key,timers in pairs(decodedMessage) do
+        if FADEWT.MessageCallbacks[key] ~= nil then
+            FADEWT.MessageCallbacks[key](timers, distribution, sender)
+        end
+    end
+end
+
+-- Sends data from each timer in an aggregated manner, not more than once every 10 seconds
+-- Avoids spamming the chat and getting errors because of it
+-- Timer needs function GetMessageData before the object is sent
+function FADEWT:SendMessage()
+    if (GetServerTime() - FADEWT.LastEventAt) <= 10 then return end
+    FADEWT.LastEventAt = GetServerTime()
+    local messageData = {}
+    -- Loop through every timer and get the data they want to send
+    for _,Timer in ipairs(FADEWT.WorldTimers) do
+        if Timer.GetMessageData ~= nil then
+            local key, data = Timer:GetMessageData()
+            messageData[key] = data
         end
     end
 
-    --Songbird:createNodes()
-    local Frame = CreateFrame("Frame", nil, UIParent)
+    local serializedMessageData = Serializer:Serialize(messageData)
+    Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
 
-    -- Update the active songflower timers every second
-    AceTimer:ScheduleRepeatingTimer(FADEWT.Tick, 1)
+    if (IsInRaid()) then
+        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "RAID");
+    end
 
-    -- Register event on UNIT_AURA so we can check if player got Songflower
-    Frame:RegisterEvent("UNIT_AURA")
-    Frame:RegisterEvent("CHAT_MSG_LOOT")
-    Frame:SetScript("OnEvent", FADEWT.HandleEvent)
-    --Comm:RegisterComm("FADEWorldTimers", FADEWT.RecvTimers)
+    if (GetGuildInfo("player") ~= nil) then
+        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "GUILD");
+    end
 end
+
+-- Sets up SavedVariabled for all registered timers
+-- Also sets up our config object
+function FADEWT:SetupDB()
+
+    if FADEWTConfig == nil then
+        FADEWTConfig = {}
+        FADEWTConfig.OnyxiaHidden = false
+        FADEWTConfig.WCBHidden = false
+        FADEWTConfig.SongflowerHidden = false
+    end
+
+    for _, Timer in ipairs(FADEWT.WorldTimers) do
+        if Timer.SetupDB ~= nil then
+            Timer:SetupDB()
+        end
+    end
+end
+
 -- Run our initialize script
 FADEWT:Initialize()
 
