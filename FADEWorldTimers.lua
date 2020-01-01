@@ -119,8 +119,7 @@ function FADEWT:SendMessage()
 
     local serializedMessageData = Serializer:Serialize(messageData)
     Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
-
-    if (IsInRaid()) then
+    if (IsInRaid() and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)) then
         Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "RAID");
     end
 
