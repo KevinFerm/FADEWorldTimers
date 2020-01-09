@@ -53,6 +53,18 @@ function FADEWT:HandleEvent(event, ...)
         local unit = ...
         FADEWT:OnUnitAura(self, unit)
     end
+
+    if event == "CHAT_MSG_LOOT" then
+        FADEWT:OnChatMsgLoot(self, ...)
+    end
+end
+
+function FADEWT:OnChatMsgLoot(self, ...)
+    for _,Timer in ipairs(FADEWT.WorldTimers) do
+        if Timer.OnChatMsgLoot ~= nil then
+            Timer.OnChatMsgLoot(...)
+        end
+    end
 end
 
 -- Runs our init function when ready

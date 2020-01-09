@@ -12,6 +12,14 @@ local options = {
             get = function() return FADEWTConfig.SongflowerHidden end,
             set = function(_, value) FADEWTConfig.SongflowerHidden = value; ReloadUI() end,
         },
+        WhipperRoot = {
+            order = 0,
+            type = "toggle",
+            name = "Hide Whipper Root timers",
+            desc = "If checked Whipper Root are hidden",
+            get = function() return FADEWTConfig.WhipperRootHidden end,
+            set = function(_, value) FADEWTConfig.WhipperRootHidden = value; ReloadUI() end,
+        },
         WCB = {
             order = 0,
             type = "toggle",
