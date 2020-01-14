@@ -20,7 +20,7 @@ FADEWT.WorldTimers = {}
 FADEWT.MessageCallbacks = {}
 FADEWT.COMMKEY = "FADEWT-1"
 FADEWT.LastEventAt = GetServerTime() - 10
-
+FADEWT.RealmName = GetRealmName()
 -- Initializes our addon
 function FADEWT:Init()
     -- Create an empty DB if need be

@@ -23,13 +23,13 @@ function FADEWT.Onyxia:Tick()
 end
 
 function FADEWT.Onyxia:GetTimerStatus(key, f)
-    local onyxiaTime = OnyxiaTimers[key]
+    local onyxiaTime = OnyxiaTimers[FADEWT.RealmName][key]
     local currTime = GetServerTime()
     if onyxiaTime then
         if onyxiaTime <= currTime then
             if onyxiaTime < currTime + (60 * 15) then
                 onyxiaTime = nil
-                OnyxiaTimers[key] = false
+                OnyxiaTimers[FADEWT.RealmName][key] = false
             end
             f.title:SetTextColor(0, 1, 0, 1)
             return "Ready?"
@@ -57,7 +57,7 @@ function FADEWT.Onyxia:GetTimerStatus(key, f)
 end
 
 function FADEWT.Onyxia:GetMessageData()
-    return FADEWT.Onyxia.COMMKEY, OnyxiaTimers
+    return FADEWT.Onyxia.COMMKEY, OnyxiaTimers[FADEWT.RealmName]
 end
 
 function FADEWT.Onyxia.ReceiveTimers(message, distribution, sender)
@@ -65,13 +65,13 @@ function FADEWT.Onyxia.ReceiveTimers(message, distribution, sender)
     if not message then return end
     local didChange = false
     for key,timer in pairs(message) do
-        if timer ~= false and (OnyxiaTimers[key] == nil or OnyxiaTimers[key] == false) then
-            OnyxiaTimers[key] = timer
+        if timer ~= false and (OnyxiaTimers[FADEWT.RealmName][key] == nil or OnyxiaTimers[FADEWT.RealmName][key] == false) then
+            OnyxiaTimers[FADEWT.RealmName][key] = timer
             didChange = true
         end
-        if timer ~= false and OnyxiaTimers[key] ~= false then
-            if timer > OnyxiaTimers[key] then
-                OnyxiaTimers[key] = timer
+        if timer ~= false and OnyxiaTimers[FADEWT.RealmName][key] ~= false then
+            if timer > OnyxiaTimers[FADEWT.RealmName][key] then
+                OnyxiaTimers[FADEWT.RealmName][key] = timer
                 didChange = true
             end
         end
@@ -84,7 +84,7 @@ end
 function FADEWT.Onyxia:ReceiveOnyxiaBuff(key)
     local currTime = GetServerTime()
     local cdTime = currTime + FADEWT.Onyxia.TimerLength
-    OnyxiaTimers[key] = cdTime
+    OnyxiaTimers[FADEWT.RealmName][key] = cdTime
     FADEWT.Onyxia:BroadcastTimers()
 end
 
@@ -114,6 +114,10 @@ end
 function FADEWT.Onyxia:SetupDB()
     if OnyxiaTimers == nil then
         OnyxiaTimers = {}
+        OnyxiaTimers[FADEWT.RealmName] = {}
+    end
+    if OnyxiaTimers[FADEWT.RealmName] == nil then
+        OnyxiaTimers[FADEWT.RealmName] = {}
     end
 end
 -- Adds a frame to the world map
@@ -153,7 +157,7 @@ function FADEWT.Onyxia:GetFrame()
     f.background:SetDrawLayer("BORDER", 1)
     f.background:SetTexture(FADEWT.Onyxia.Icon)
 
-    f.title = f:CreateFontString("TESTAR")
+    f.title = f:CreateFontString("")
     f.title:SetFontObject("GameFontNormalMed3")
     f.title:SetTextColor(1,0,0,1)
     f.title:SetText("")
@@ -168,7 +172,7 @@ end
 -- Sends a broadcast if we have any timers to broadcast
 function FADEWT.Onyxia:SendBroadcastIfActiveTimer()
     local shouldBroadcast = false
-    for key,timer in pairs(OnyxiaTimers) do
+    for key,timer in pairs(OnyxiaTimers[FADEWT.RealmName]) do
         if timer then
             shouldBroadcast = true
         end

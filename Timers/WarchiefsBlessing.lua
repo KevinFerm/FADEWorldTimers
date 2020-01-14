@@ -21,18 +21,18 @@ function FADEWT.WCB:Tick()
 end
 
 function FADEWT.WCB:GetMessageData()
-    return FADEWT.WCB.COMMKEY, WCBTimers
+    return FADEWT.WCB.COMMKEY, WCBTimers[FADEWT.RealmName]
 end
 
 
 function FADEWT.WCB:GetTimerStatus(key, f)
-    local WCBTime = WCBTimers[key]
+    local WCBTime = WCBTimers[FADEWT.RealmName][key]
     local currTime = GetServerTime()
     if WCBTime then
         if WCBTime <= currTime then
             if WCBTime < currTime + (60 * 15) then
                 WCBTime = nil
-                WCBTimers[key] = false
+                WCBTimers[FADEWT.RealmName][key] = false
             end
             f.title:SetTextColor(0, 1, 0, 1)
             return "Ready?"
@@ -64,13 +64,13 @@ function FADEWT.WCB.ReceiveTimers(message, distribution, sender)
     if not message then return end
     local didChange = false
     for key,timer in pairs(message) do
-        if timer ~= false and (WCBTimers[key] == nil or WCBTimers[key] == false) then
-            WCBTimers[key] = timer
+        if timer ~= false and (WCBTimers[FADEWT.RealmName][key] == nil or WCBTimers[FADEWT.RealmName][key] == false) then
+            WCBTimers[FADEWT.RealmName][key] = timer
             didChange = true
         end
-        if timer ~= false and WCBTimers[key] ~= false then
-            if timer > WCBTimers[key] then
-                WCBTimers[key] = timer
+        if timer ~= false and WCBTimers[FADEWT.RealmName][key] ~= false then
+            if timer > WCBTimers[FADEWT.RealmName][key] then
+                WCBTimers[FADEWT.RealmName][key] = timer
                 didChange = true
             end
         end
@@ -83,14 +83,14 @@ end
 function FADEWT.WCB:ReceiveWCBBuff(key)
     local currTime = GetServerTime()
     local cdTime = currTime + FADEWT.WCB.TimerLength
-    WCBTimers[key] = cdTime
+    WCBTimers[FADEWT.RealmName][key] = cdTime
     FADEWT.WCB:BroadcastTimers()
 end
 
 -- Sends a broadcast if we have any timers to broadcast
 function FADEWT.WCB:SendBroadcastIfActiveTimer()
     local shouldBroadcast = false
-    for key,timer in pairs(WCBTimers) do
+    for key,timer in pairs(WCBTimers[FADEWT.RealmName]) do
         if timer then
             shouldBroadcast = true
         end
@@ -127,6 +127,10 @@ end
 function FADEWT.WCB:SetupDB()
     if WCBTimers == nil then
         WCBTimers = {}
+        WCBTimers[FADEWT.RealmName] = {}
+    end
+    if WCBTimers[FADEWT.RealmName] == nil then
+        WCBTimers[FADEWT.RealmName] = {}
     end
 end
 -- Adds a frame to the world map
@@ -166,7 +170,7 @@ function FADEWT.WCB:GetFrame()
     f.background:SetDrawLayer("BORDER", 1)
     f.background:SetTexture(FADEWT.WCB.Icon)
 
-    f.title = f:CreateFontString("TESTAR")
+    f.title = f:CreateFontString("")
     f.title:SetFontObject("GameFontNormalMed3")
     f.title:SetTextColor(1,0,0,1)
     f.title:SetText("")

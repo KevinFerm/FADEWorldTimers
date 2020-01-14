@@ -30,20 +30,20 @@ function FADEWT.Songflower:Tick()
 end
 
 function FADEWT.Songflower:GetMessageData()
-    return FADEWT.Songflower.COMMKEY, SongflowerTimers
+    return FADEWT.Songflower.COMMKEY, SongflowerTimers[FADEWT.RealmName]
 end
 
 function FADEWT.Songflower.ReceiveTimers(message, distribution, sender)
     if not message then return end
     local didChange = false
     for key,timer in pairs(message) do
-        if timer ~= false and (SongflowerTimers[key] == nil or SongflowerTimers[key] == false) then
-            SongflowerTimers[key] = timer
+        if timer ~= false and (SongflowerTimers[FADEWT.RealmName][key] == nil or SongflowerTimers[FADEWT.RealmName][key] == false) then
+            SongflowerTimers[FADEWT.RealmName][key] = timer
             didChange = true
         end
-        if timer ~= false and SongflowerTimers[key] ~= false then
-            if timer > SongflowerTimers[key] then
-                SongflowerTimers[key] = timer
+        if timer ~= false and SongflowerTimers[FADEWT.RealmName][key] ~= false then
+            if timer > SongflowerTimers[FADEWT.RealmName][key] then
+                SongflowerTimers[FADEWT.RealmName][key] = timer
                 didChange = true
             end
         end
@@ -76,13 +76,13 @@ end
 -- Gets status text of a given flower
 -- If it's got a cooldown on it, or no status
 function FADEWT.Songflower:getFlowerStatus(key, f)
-    local flowerTime = SongflowerTimers[key]
+    local flowerTime = SongflowerTimers[FADEWT.RealmName][key]
     local currTime = GetServerTime()
     if flowerTime then
         if flowerTime <= currTime then
             if flowerTime < currTime + (60 * 3) then
                 flowerTime = nil
-                SongflowerTimers[key] = false
+                SongflowerTimers[FADEWT.RealmName][key] = false
             end
             f.title:SetTextColor(0, 1, 0, 1)
             return "Ready?"
@@ -129,7 +129,7 @@ end
 -- Sends a broadcast if we have any timers to broadcast
 function FADEWT.Songflower:SendBroadcastIfActiveTimer()
     local shouldBroadcast = false
-    for key,timer in pairs(SongflowerTimers) do
+    for key,timer in pairs(SongflowerTimers[FADEWT.RealmName]) do
         if timer then
             shouldBroadcast = true
         end
@@ -179,7 +179,7 @@ end
 function FADEWT.Songflower:PickSongflower(key)
     local currTime = GetServerTime()
     local cdTime = currTime + (25 * 60)
-    SongflowerTimers[key] = cdTime
+    SongflowerTimers[FADEWT.RealmName][key] = cdTime
     FADEWT.Songflower:BroadcastTimers()
 end
 
@@ -221,7 +221,7 @@ function FADEWT.Songflower:GetFrame()
     f.background:SetDrawLayer("BORDER", 1)
     f.background:SetTexture(FADEWT.Songflower.Icon)
 
-    f.title = f:CreateFontString("TESTAR")
+    f.title = f:CreateFontString("")
     f.title:SetFontObject("GameFontNormalMed3")
     f.title:SetTextColor(1,0,0,1)
     f.title:SetText("")
@@ -237,6 +237,10 @@ end
 function FADEWT.Songflower:SetupDB()
     if SongflowerTimers == nil then
         SongflowerTimers = {}
+        SongflowerTimers[FADEWT.RealmName] = {}
+    end
+    if SongflowerTimers[FADEWT.RealmName] == nil then
+        SongflowerTimers[FADEWT.RealmName] = {}
     end
 end
 
