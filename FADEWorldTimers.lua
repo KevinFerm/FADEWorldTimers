@@ -18,7 +18,7 @@ local Comm = LibStub("AceComm-3.0")
 FADEWT.WorldTimers = {}
 
 FADEWT.MessageCallbacks = {}
-FADEWT.COMMKEY = "FADEWT-1"
+FADEWT.COMMKEY = "FADEWT-2"
 FADEWT.LastEventAt = GetServerTime() - 10
 FADEWT.RealmName = GetRealmName()
 -- Initializes our addon
