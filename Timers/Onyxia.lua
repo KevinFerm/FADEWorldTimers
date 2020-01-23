@@ -169,6 +169,11 @@ function FADEWT.Onyxia:GetFrame()
     return f
 end
 
+function FADEWT.Onyxia.GetTimers()
+    return FADEWT.Onyxia.COMMKEY, OnyxiaTimers[FADEWT.RealmName]
+end
+
+
 -- Sends a broadcast if we have any timers to broadcast
 function FADEWT.Onyxia:SendBroadcastIfActiveTimer()
     local shouldBroadcast = false

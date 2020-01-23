@@ -24,7 +24,6 @@ function FADEWT.WCB:GetMessageData()
     return FADEWT.WCB.COMMKEY, WCBTimers[FADEWT.RealmName]
 end
 
-
 function FADEWT.WCB:GetTimerStatus(key, f)
     local WCBTime = WCBTimers[FADEWT.RealmName][key]
     local currTime = GetServerTime()
@@ -180,6 +179,10 @@ function FADEWT.WCB:GetFrame()
     f.title:Show()
     f:Show()
     return f
+end
+
+function FADEWT.WCB.GetTimers()
+    return FADEWT.WCB.COMMKEY, WCBTimers[FADEWT.RealmName]
 end
 
 

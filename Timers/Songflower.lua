@@ -29,6 +29,10 @@ function FADEWT.Songflower:Tick()
     end
 end
 
+function FADEWT.Songflower.GetTimers()
+    return FADEWT.Songflower.COMMKEY, SongflowerTimers[FADEWT.RealmName]
+end
+
 function FADEWT.Songflower:GetMessageData()
     return FADEWT.Songflower.COMMKEY, SongflowerTimers[FADEWT.RealmName]
 end

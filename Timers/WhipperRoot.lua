@@ -29,6 +29,11 @@ function FADEWT.WhipperRoot:GetMessageData()
     return FADEWT.WhipperRoot.COMMKEY, WhipperRootTimers[FADEWT.RealmName]
 end
 
+function FADEWT.WhipperRoot.GetTimers()
+    return FADEWT.WhipperRoot.COMMKEY, WhipperRootTimers[FADEWT.RealmName]
+end
+
+
 function FADEWT.WhipperRoot.ReceiveTimers(message, distribution, sender)
     if not message then return end
     local didChange = false

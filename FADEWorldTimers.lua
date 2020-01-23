@@ -19,7 +19,7 @@ FADEWT.WorldTimers = {}
 
 FADEWT.MessageCallbacks = {}
 FADEWT.COMMKEY = "FADEWT-2"
-FADEWT.LastEventAt = GetServerTime() - 10
+FADEWT.LastEventAt = GetServerTime() - 15
 FADEWT.RealmName = GetRealmName()
 -- Initializes our addon
 function FADEWT:Init()
@@ -117,8 +117,8 @@ end
 -- Sends data from each timer in an aggregated manner, not more than once every 10 seconds
 -- Avoids spamming the chat and getting errors because of it
 -- Timer needs function GetMessageData before the object is sent
-function FADEWT:SendMessage()
-    if (GetServerTime() - FADEWT.LastEventAt) <= 10 then return end
+function FADEWT:SendMessage(force)
+    if ((GetServerTime() - FADEWT.LastEventAt) <= 15) and (force ~= true) then return end
     FADEWT.LastEventAt = GetServerTime()
     local messageData = {}
     -- Loop through every timer and get the data they want to send
@@ -138,6 +138,19 @@ function FADEWT:SendMessage()
     if (GetGuildInfo("player") ~= nil) then
         Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "GUILD");
     end
+end
+
+-- Returns active timers for a given timer
+function FADEWT:GetTimers()
+    local timers = {}
+    for _,Timer in ipairs(FADEWT.WorldTimers) do
+        if Timer.GetTimers ~= nil then
+            local key, cds = Timer.GetTimers()
+            timers[key] = cds
+        end
+    end
+    --print(dump(timers))
+    return timers
 end
 
 -- Sets up SavedVariabled for all registered timers
