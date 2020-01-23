@@ -147,7 +147,7 @@ function FADEWT.Songflower:OnUnitAura(unit)
         for i = 1, 40 do
             name, _, _, _, _, expirationTime, _, _, _, sid = UnitAura("player", i, "HELPFUL")
             -- Check for buff Songflower Serenade
-            if name == "Songflower Serenade" then
+            if sid == 15366 then
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied

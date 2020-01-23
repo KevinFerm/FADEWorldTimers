@@ -138,10 +138,8 @@ end
 
 function FADEWT.WhipperRoot.OnChatMsgLoot(...)
     local lootstring, _, _, _, player = ...
-    local itemLink = string.match(lootstring,"|%x+|Hitem:.-|h.-|h|r")
-    local itemString = string.match(itemLink, "item[%-?%d:]+")
-    local itemName = GetItemInfo(itemString)
-    if itemName == "Whipper Root Tuber" then
+    local itemID = lootstring:match("|Hitem:(%d+)")
+    if itemID == 11951 then
         local zId, zT = HBD:GetPlayerZone()
         -- Validate zone just in case
         if not zId == 1448 then return end
