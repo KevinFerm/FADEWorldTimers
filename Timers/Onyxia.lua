@@ -64,15 +64,20 @@ function FADEWT.Onyxia.ReceiveTimers(message, distribution, sender)
     --local ok, receivedTimers = Serializer:Deserialize(message)
     if not message then return end
     local didChange = false
+    local currTime = GetServerTime()
     for key,timer in pairs(message) do
         if timer ~= false and (OnyxiaTimers[FADEWT.RealmName][key] == nil or OnyxiaTimers[FADEWT.RealmName][key] == false) then
-            OnyxiaTimers[FADEWT.RealmName][key] = timer
-            didChange = true
+            if (currTime + FADEWT.Onyxia.TimerLength + 20) > timer then
+                OnyxiaTimers[FADEWT.RealmName][key] = timer
+                didChange = true
+            end
         end
         if timer ~= false and OnyxiaTimers[FADEWT.RealmName][key] ~= false then
             if timer > OnyxiaTimers[FADEWT.RealmName][key] then
-                OnyxiaTimers[FADEWT.RealmName][key] = timer
-                didChange = true
+                if (currTime + FADEWT.Onyxia.TimerLength + 20) > timer then
+                    OnyxiaTimers[FADEWT.RealmName][key] = timer
+                    didChange = true
+                end
             end
         end
     end
@@ -99,7 +104,7 @@ function FADEWT.Onyxia:OnUnitAura(unit)
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                if (expirationTime - currTime) >= (60 * 120) - 2 then
+                if ((expirationTime - currTime) >= (60 * 120) - 1) and (currTime > (FADEWT.InitTime + 1)) then
                     local zId, zT = HBD:GetPlayerZone()
                     FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
                 end

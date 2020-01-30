@@ -35,6 +35,14 @@ local options = {
             desc = "If checked Onyxia timers are hidden",
             get = function() return FADEWTConfig.OnyxiaHidden end,
             set = function(_, value) FADEWTConfig.OnyxiaHidden = value; ReloadUI() end,
+        },
+        BroadcastYELL = {
+            order = 0,
+            type = "toggle",
+            name = "Toggle broadcasting to YELL",
+            desc = "If checked addon does not broadcast to YELL",
+            get = function() return FADEWTConfig.YellDisabled end,
+            set = function(_, value) FADEWTConfig.YellDisabled = value; ReloadUI() end,
         }
     }
 }

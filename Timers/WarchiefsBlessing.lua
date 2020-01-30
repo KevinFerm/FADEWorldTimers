@@ -62,15 +62,20 @@ function FADEWT.WCB.ReceiveTimers(message, distribution, sender)
     --local ok, receivedTimers = Serializer:Deserialize(message);
     if not message then return end
     local didChange = false
+    local currTime = GetServerTime()
     for key,timer in pairs(message) do
         if timer ~= false and (WCBTimers[FADEWT.RealmName][key] == nil or WCBTimers[FADEWT.RealmName][key] == false) then
-            WCBTimers[FADEWT.RealmName][key] = timer
-            didChange = true
+            if (currTime + FADEWT.WCB.TimerLength + 10) > timer then
+                WCBTimers[FADEWT.RealmName][key] = timer
+                didChange = true
+            end
         end
         if timer ~= false and WCBTimers[FADEWT.RealmName][key] ~= false then
             if timer > WCBTimers[FADEWT.RealmName][key] then
-                WCBTimers[FADEWT.RealmName][key] = timer
-                didChange = true
+                if (currTime + FADEWT.WCB.TimerLength + 10) > timer then
+                    WCBTimers[FADEWT.RealmName][key] = timer
+                    didChange = true
+                end
             end
         end
     end
@@ -111,7 +116,7 @@ function FADEWT.WCB:OnUnitAura(unit)
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                if (expirationTime - currTime) >= (60 * 60) - 2 then
+                if ((expirationTime - currTime) >= (60 * 60) - 1) and (currTime > (FADEWT.InitTime + 1)) then
                     local zId, zT = HBD:GetPlayerZone()
                     FADEWT.WCB:ReceiveWCBBuff(tostring(zId))
                 end

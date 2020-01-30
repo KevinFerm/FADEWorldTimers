@@ -9,17 +9,12 @@ local Comm = LibStub("AceComm-3.0")
 ------ INITIALIZE ADDON CORE
 -----------------------
 
--- All active timer objects
--- @INTERFACE
--- Locations = {String: {x, y}}
--- TimerLength = Integer (Seconds)
--- function GetFrame - returns frame with title child
--- function Tick - Runs every tick, handles timers on map and their visuals
 FADEWT.WorldTimers = {}
 
 FADEWT.MessageCallbacks = {}
-FADEWT.COMMKEY = "FADEWT-2"
+FADEWT.COMMKEY = "FADEWT-3"
 FADEWT.LastEventAt = GetServerTime() - 15
+FADEWT.InitTime = GetTime()
 FADEWT.RealmName = GetRealmName()
 -- Initializes our addon
 function FADEWT:Init()
@@ -130,7 +125,11 @@ function FADEWT:SendMessage(force)
     end
 
     local serializedMessageData = Serializer:Serialize(messageData)
-    Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
+
+    if FADEWTConfig.YellDisabled ~= true then
+        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
+    end
+
     if (IsInRaid() and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)) then
         Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "RAID");
     end
@@ -162,6 +161,7 @@ function FADEWT:SetupDB()
         FADEWTConfig.OnyxiaHidden = false
         FADEWTConfig.WCBHidden = false
         FADEWTConfig.SongflowerHidden = false
+        FADEWTConfig.YellDisabled = false
     end
 
     for _, Timer in ipairs(FADEWT.WorldTimers) do
