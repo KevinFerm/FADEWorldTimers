@@ -12,7 +12,7 @@ local Comm = LibStub("AceComm-3.0")
 FADEWT.WorldTimers = {}
 
 FADEWT.MessageCallbacks = {}
-FADEWT.COMMKEY = "FADEWT-3"
+FADEWT.COMMKEY = "FADEWT-2"
 FADEWT.LastEventAt = GetServerTime() - 15
 FADEWT.InitTime = GetTime()
 FADEWT.RealmName = GetRealmName()
@@ -102,10 +102,17 @@ end
 function FADEWT:HandleMessage(message, distribution, sender)
     local ok, decodedMessage = Serializer:Deserialize(message);
     if not ok or not decodedMessage then return false end
+    if sender == UnitName("player") then return false end
     for key,timers in pairs(decodedMessage) do
         if FADEWT.MessageCallbacks[key] ~= nil then
             FADEWT.MessageCallbacks[key](timers, distribution, sender)
         end
+    end
+end
+-- Debug message
+function FADEWT.Debug(...)
+    if FADEWTConfig.Debug == true then
+        print("FADEWT", ...)
     end
 end
 
@@ -116,6 +123,7 @@ function FADEWT:SendMessage(force)
     if ((GetServerTime() - FADEWT.LastEventAt) <= 15) and (force ~= true) then return end
     FADEWT.LastEventAt = GetServerTime()
     local messageData = {}
+
     -- Loop through every timer and get the data they want to send
     for _,Timer in ipairs(FADEWT.WorldTimers) do
         if Timer.GetMessageData ~= nil then
@@ -125,6 +133,8 @@ function FADEWT:SendMessage(force)
     end
 
     local serializedMessageData = Serializer:Serialize(messageData)
+
+    FADEWT.Debug("Broadcasting timers")
 
     if FADEWTConfig.YellDisabled ~= true then
         Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
@@ -162,6 +172,7 @@ function FADEWT:SetupDB()
         FADEWTConfig.WCBHidden = false
         FADEWTConfig.SongflowerHidden = false
         FADEWTConfig.YellDisabled = false
+        FADEWTConfig.Debug = false
     end
 
     for _, Timer in ipairs(FADEWT.WorldTimers) do

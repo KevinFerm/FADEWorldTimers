@@ -43,6 +43,14 @@ local options = {
             desc = "If checked addon does not broadcast to YELL",
             get = function() return FADEWTConfig.YellDisabled end,
             set = function(_, value) FADEWTConfig.YellDisabled = value; ReloadUI() end,
+        },
+        Debug = {
+            order = 0,
+            type = "toggle",
+            name = "Toggle Debug",
+            desc = "If checked you will get debug messages in your chat (for testing only)",
+            get = function() return FADEWTConfig.Debug end,
+            set = function(_, value) FADEWTConfig.Debug = value; ReloadUI() end,
         }
     }
 }

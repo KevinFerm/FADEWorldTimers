@@ -41,6 +41,7 @@ function FADEWT.Songflower.ReceiveTimers(message, distribution, sender)
     if not message then return end
     local didChange = false
     for key,timer in pairs(message) do
+        --FADEWT.Debug("Receiving songflower timers")
         if timer ~= false and (SongflowerTimers[FADEWT.RealmName][key] == nil or SongflowerTimers[FADEWT.RealmName][key] == false) then
             SongflowerTimers[FADEWT.RealmName][key] = timer
             didChange = true

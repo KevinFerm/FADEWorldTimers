@@ -66,13 +66,16 @@ function FADEWT.Onyxia.ReceiveTimers(message, distribution, sender)
     local didChange = false
     local currTime = GetServerTime()
     for key,timer in pairs(message) do
+        
         if timer ~= false and (OnyxiaTimers[FADEWT.RealmName][key] == nil or OnyxiaTimers[FADEWT.RealmName][key] == false) then
+            --FADEWT.Debug("RECV ONY TIMER", timer, (currTime + FADEWT.Onyxia.TimerLength + 10) > timer)
             if (currTime + FADEWT.Onyxia.TimerLength + 20) > timer then
                 OnyxiaTimers[FADEWT.RealmName][key] = timer
                 didChange = true
             end
         end
         if timer ~= false and OnyxiaTimers[FADEWT.RealmName][key] ~= false then
+            --FADEWT.Debug("RECV ONY TIMER", timer, (currTime + FADEWT.Onyxia.TimerLength + 10) > timer)
             if timer > OnyxiaTimers[FADEWT.RealmName][key] then
                 if (currTime + FADEWT.Onyxia.TimerLength + 20) > timer then
                     OnyxiaTimers[FADEWT.RealmName][key] = timer
