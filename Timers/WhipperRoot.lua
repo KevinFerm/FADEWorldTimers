@@ -67,6 +67,7 @@ function FADEWT.WhipperRoot:ValidatePlayerPosition(x, y)
         local sY = math.floor(coords[2])
         -- Measure distance between two coordinates
         local distance = math.sqrt(((x - sX)^2) + ((y - sY)^2))
+        
         if distance < 3 then
             return key
         end
@@ -144,10 +145,12 @@ end
 function FADEWT.WhipperRoot.OnChatMsgLoot(...)
     local lootstring, _, _, _, player = ...
     local itemID = lootstring:match("|Hitem:(%d+)")
-    if itemID == 11951 then
+    FADEWT.Debug("Recv item ", itemID)
+    if itemID == 11951 or itemID == "11951" then
         local zId, zT = HBD:GetPlayerZone()
         -- Validate zone just in case
         if not zId == 1448 then return end
+        FADEWT.Debug("Starting to pick Whipper")
 
         local x,y,instance = HBD:GetPlayerZonePosition()
         x = x * 100
@@ -157,6 +160,7 @@ function FADEWT.WhipperRoot.OnChatMsgLoot(...)
         local key = FADEWT.WhipperRoot:ValidatePlayerPosition(x,y)
 
         if key then
+            FADEWT.Debug("Position validated")
             -- We know that the WhipperRoot was just picked
             FADEWT.WhipperRoot:PickWhipperRoot(key)
         end
