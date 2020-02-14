@@ -114,6 +114,7 @@ function FADEWT.Onyxia:OnUnitAura(unit)
                 end
             end
         end
+        FADEWT.Onyxia:SendBroadcastIfActiveTimer()
     end
 end
 

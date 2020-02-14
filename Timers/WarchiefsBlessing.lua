@@ -124,6 +124,7 @@ function FADEWT.WCB:OnUnitAura(unit)
                 end
             end
         end
+        FADEWT.WCB:SendBroadcastIfActiveTimer()
     end
 end
 

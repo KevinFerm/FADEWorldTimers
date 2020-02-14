@@ -190,6 +190,8 @@ function FADEWT.Songflower:OnUnitAura(unit)
                 end
             end
         end
+        
+        FADEWT.Songflower:SendBroadcastIfActiveTimer()
     end
 end
 
