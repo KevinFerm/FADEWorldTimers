@@ -13,7 +13,7 @@ FADEWT.WorldTimers = {}
 
 FADEWT.MessageCallbacks = {}
 FADEWT.COMMKEY = "FADEWT-3"
-FADEWT.LastEventAt = GetServerTime() - 15
+FADEWT.LastEventAt = GetServerTime() - 20
 FADEWT.InitTime = GetTime()
 FADEWT.RealmName = GetRealmName()
 -- Initializes our addon
@@ -120,7 +120,7 @@ end
 -- Avoids spamming the chat and getting errors because of it
 -- Timer needs function GetMessageData before the object is sent
 function FADEWT:SendMessage(force)
-    if ((GetServerTime() - FADEWT.LastEventAt) <= 15) and (force ~= true) then return end
+    if ((GetServerTime() - FADEWT.LastEventAt) <= 20) and (force ~= true) then return end
     FADEWT.LastEventAt = GetServerTime()
     local messageData = {}
 
@@ -135,13 +135,13 @@ function FADEWT:SendMessage(force)
     local serializedMessageData = Serializer:Serialize(messageData)
 
     FADEWT.Debug("Broadcasting timers")
-
+    -- TODO: Enable when I'm sure what causes the bugs
     if FADEWTConfig.YellDisabled ~= true then
-        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
+        -- Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
     end
 
     if (IsInRaid() and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)) then
-        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "RAID");
+        -- Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "RAID");
     end
 
     if (GetGuildInfo("player") ~= nil) then

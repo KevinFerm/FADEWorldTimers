@@ -9,7 +9,7 @@ FADEWT.WCB.Icon = "Interface\\Icons\\spell_arcane_teleportorgrimmar"
 FADEWT.WCB.LastEventAt = GetServerTime() - 10
 FADEWT.WCB.TimerLength = (60 * 60) * 3
 FADEWT.WCB.Frames = {}
-FADEWT.WCB.COMMKEY = "FADEWT-WCB"
+FADEWT.WCB.COMMKEY = "FADEWT-WCB3"
 FADEWT.WCB.Locations = {
     ["1454"] = {45, 30},
 }
@@ -21,17 +21,17 @@ function FADEWT.WCB:Tick()
 end
 
 function FADEWT.WCB:GetMessageData()
-    return FADEWT.WCB.COMMKEY, WCBTimers[FADEWT.RealmName]
+    return FADEWT.WCB.COMMKEY, WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName]["1454"]
 end
 
 function FADEWT.WCB:GetTimerStatus(key, f)
-    local WCBTime = WCBTimers[FADEWT.RealmName][key]
+    local WCBTime = WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key]
     local currTime = GetServerTime()
     if WCBTime then
         if WCBTime <= currTime then
             if WCBTime < currTime + (60 * 15) then
                 WCBTime = nil
-                WCBTimers[FADEWT.RealmName][key] = false
+                WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] = false
             end
             f.title:SetTextColor(0, 1, 0, 1)
             return "Ready?"
@@ -64,39 +64,36 @@ function FADEWT.WCB.ReceiveTimers(message, distribution, sender)
     local didChange = false
     local currTime = GetServerTime()
     for key,timer in pairs(message) do
-        if timer ~= false and (WCBTimers[FADEWT.RealmName][key] == nil or WCBTimers[FADEWT.RealmName][key] == false) then
+        if timer ~= false and (WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] == nil or WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] == false) then
             --FADEWT.Debug("RECV WCB TIMER", timer, (currTime + FADEWT.WCB.TimerLength + 10) > timer)
-            if (currTime + FADEWT.WCB.TimerLength + 10) > timer then
-                WCBTimers[FADEWT.RealmName][key] = timer
+            if ((currTime + FADEWT.WCB.TimerLength + 10) > timer) and FADEWT.WCB.Locations[key] ~= nil then
+                WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] = timer
                 didChange = true
             end
         end
-        if timer ~= false and WCBTimers[FADEWT.RealmName][key] ~= false then
+        if timer ~= false and WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] ~= false then
             --FADEWT.Debug("RECV WCB TIMER", timer, (currTime + FADEWT.WCB.TimerLength + 10) > timer)
-            if timer > WCBTimers[FADEWT.RealmName][key] then
-                if (currTime + FADEWT.WCB.TimerLength + 10) > timer then
-                    WCBTimers[FADEWT.RealmName][key] = timer
+            if timer > WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] then
+                if ((currTime + FADEWT.WCB.TimerLength + 10) > timer) and FADEWT.WCB.Locations[key] ~= nil then
+                    WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] = timer
                     didChange = true
                 end
             end
         end
-    end
-    if didChange == true and sender ~= UnitName("player")  then
-        FADEWT.WCB:BroadcastTimers()
     end
 end
 
 function FADEWT.WCB:ReceiveWCBBuff()
     local currTime = GetServerTime()
     local cdTime = currTime + FADEWT.WCB.TimerLength
-    WCBTimers[FADEWT.RealmName]["1454"] = cdTime
+    WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName]["1454"] = cdTime
     FADEWT.WCB:BroadcastTimers()
 end
 
 -- Sends a broadcast if we have any timers to broadcast
 function FADEWT.WCB:SendBroadcastIfActiveTimer()
     local shouldBroadcast = false
-    for key,timer in pairs(WCBTimers[FADEWT.RealmName]) do
+    for key,timer in pairs(WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName]) do
         if timer then
             shouldBroadcast = true
         end
@@ -118,13 +115,15 @@ function FADEWT.WCB:OnUnitAura(unit)
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                if ((expirationTime - currTime) >= (60 * 60) - 1) and (currTime > (FADEWT.InitTime + 1)) then
+                
+                print((expirationTime - currTime), (60 * 60) - 1, currTime, FADEWT.InitTime + 2)
+                if ((expirationTime - currTime) >= (60 * 60) - 1) and (currTime > (FADEWT.InitTime + 2)) then
                     
                     FADEWT.WCB:ReceiveWCBBuff()
+                    FADEWT.WCB:SendBroadcastIfActiveTimer()
                 end
             end
         end
-        FADEWT.WCB:SendBroadcastIfActiveTimer()
     end
 end
 
@@ -133,11 +132,16 @@ end
 function FADEWT.WCB:SetupDB()
     if WCBTimers == nil then
         WCBTimers = {}
-        WCBTimers[FADEWT.RealmName] = {}
+        WCBTimers[FADEWT.WCB.COMMKEY] = {}
+        WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName] = {}
     end
-    if WCBTimers[FADEWT.RealmName] == nil then
-        WCBTimers[FADEWT.RealmName] = {}
+    if WCBTimers[FADEWT.WCB.COMMKEY] == nil then
+        WCBTimers[FADEWT.WCB.COMMKEY] = {}
     end
+    if WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName] == nil then
+        WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName] = {}
+    end
+    WCBTimers[FADEWT.RealmName] = nil
 end
 -- Adds a frame to the world map
 -- In this case it's a Songflower icon with a possible timer below it
@@ -189,7 +193,7 @@ function FADEWT.WCB:GetFrame()
 end
 
 function FADEWT.WCB.GetTimers()
-    return FADEWT.WCB.COMMKEY, WCBTimers[FADEWT.RealmName]
+    return FADEWT.WCB.COMMKEY, WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName]
 end
 
 

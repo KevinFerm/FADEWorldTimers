@@ -9,7 +9,7 @@ FADEWT.Songflower.Icon = "Interface\\Icons\\spell_holy_mindvision"
 FADEWT.Songflower.TimerLength = 25 * 60
 FADEWT.Songflower.Frames = {}
 FADEWT.Songflower.LastEventAt = GetServerTime() - 10
-FADEWT.Songflower.COMMKEY = "Songbird-1"
+FADEWT.Songflower.COMMKEY = "Songbird-3"
 FADEWT.Songflower.Locations = {
     ["south1"] = {52.9, 87.83},
     ["south2"] = {45.94, 85.22},
@@ -30,31 +30,45 @@ function FADEWT.Songflower:Tick()
 end
 
 function FADEWT.Songflower.GetTimers()
-    return FADEWT.Songflower.COMMKEY, SongflowerTimers[FADEWT.RealmName]
+    local flowers = {
+        ["south1"] = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["south1"],
+        ["south2"] = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["south2"],
+        ["south3"] = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["south3"],
+        ["north4"] = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["north4"],
+        ["north1"] = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["north1"],
+        ["north2"] = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["north2"],
+        ["mid1"]   = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["mid1"],
+        ["mid2"]   = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["mid2"],
+        ["mid3"]   = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["mid3"],
+        ["north3"] = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]["north3"]
+    }
+    return FADEWT.Songflower.COMMKEY, flowers
 end
 
 function FADEWT.Songflower:GetMessageData()
-    return FADEWT.Songflower.COMMKEY, SongflowerTimers[FADEWT.RealmName]
+    return FADEWT.Songflower.COMMKEY, SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]
 end
 
 function FADEWT.Songflower.ReceiveTimers(message, distribution, sender)
     if not message then return end
     local didChange = false
+    local currTime = GetServerTime()
     for key,timer in pairs(message) do
         --FADEWT.Debug("Receiving songflower timers")
-        if timer ~= false and (SongflowerTimers[FADEWT.RealmName][key] == nil or SongflowerTimers[FADEWT.RealmName][key] == false) then
-            SongflowerTimers[FADEWT.RealmName][key] = timer
-            didChange = true
-        end
-        if timer ~= false and SongflowerTimers[FADEWT.RealmName][key] ~= false then
-            if timer > SongflowerTimers[FADEWT.RealmName][key] then
-                SongflowerTimers[FADEWT.RealmName][key] = timer
+        if timer ~= false and (SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName][key] == nil or SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName][key] == false) and FADEWT.Songflower.Locations[key] ~= nil then
+            if timer <= currTime + (FADEWT.Songflower.TimerLength + 3) then
+                SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName][key] = timer
                 didChange = true
             end
         end
-    end
-    if didChange == true and sender ~= UnitName("player")  then
-        FADEWT.Songflower:BroadcastTimers()
+        if timer ~= false and SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName][key] ~= false then
+            if (timer > SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName][key]) and FADEWT.Songflower.Locations[key] ~= nil then
+                if timer <= currTime + (FADEWT.Songflower.TimerLength + 3) then
+                    SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName][key] = timer
+                    didChange = true
+                end
+            end
+        end
     end
 end
 
@@ -81,13 +95,13 @@ end
 -- Gets status text of a given flower
 -- If it's got a cooldown on it, or no status
 function FADEWT.Songflower:getFlowerStatus(key, f)
-    local flowerTime = SongflowerTimers[FADEWT.RealmName][key]
+    local flowerTime = SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName][key]
     local currTime = GetServerTime()
     if flowerTime then
         if flowerTime <= currTime then
             if flowerTime < currTime + (60 * 3) then
                 flowerTime = nil
-                SongflowerTimers[FADEWT.RealmName][key] = false
+                SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName][key] = false
             end
             f.title:SetTextColor(0, 1, 0, 1)
             return "Ready?"
@@ -134,7 +148,7 @@ end
 -- Sends a broadcast if we have any timers to broadcast
 function FADEWT.Songflower:SendBroadcastIfActiveTimer()
     local shouldBroadcast = false
-    for key,timer in pairs(SongflowerTimers[FADEWT.RealmName]) do
+    for key,timer in pairs(SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]) do
         if timer then
             shouldBroadcast = true
         end
@@ -176,7 +190,6 @@ function FADEWT.Songflower:OnUnitAura(unit)
                 end
             end
         end
-        FADEWT.Songflower:SendBroadcastIfActiveTimer()
     end
 end
 
@@ -184,7 +197,7 @@ end
 function FADEWT.Songflower:PickSongflower(key)
     local currTime = GetServerTime()
     local cdTime = currTime + (25 * 60)
-    SongflowerTimers[FADEWT.RealmName][key] = cdTime
+    SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName][key] = cdTime
     FADEWT.Songflower:BroadcastTimers()
 end
 
@@ -242,11 +255,16 @@ end
 function FADEWT.Songflower:SetupDB()
     if SongflowerTimers == nil then
         SongflowerTimers = {}
-        SongflowerTimers[FADEWT.RealmName] = {}
+        SongflowerTimers[FADEWT.Songflower.COMMKEY] = {}
+        SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName] = {}
     end
-    if SongflowerTimers[FADEWT.RealmName] == nil then
-        SongflowerTimers[FADEWT.RealmName] = {}
+    if  SongflowerTimers[FADEWT.Songflower.COMMKEY] == nil then
+        SongflowerTimers[FADEWT.Songflower.COMMKEY] = {}
     end
+    if SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName] == nil then
+        SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName] = {}
+    end
+    SongflowerTimers[FADEWT.RealmName] = nil
 end
 
 -- Register our World Timer

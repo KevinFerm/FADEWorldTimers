@@ -9,7 +9,7 @@ FADEWT.WhipperRoot.Icon = "Interface\\Icons\\inv_misc_food_55"
 FADEWT.WhipperRoot.TimerLength = 25 * 60
 FADEWT.WhipperRoot.Frames = {}
 FADEWT.WhipperRoot.LastEventAt = GetServerTime() - 10
-FADEWT.WhipperRoot.COMMKEY = "WhipperRoot-1"
+FADEWT.WhipperRoot.COMMKEY = "WhipperRoot-2"
 FADEWT.WhipperRoot.Locations = {
     ["tuber1"] = {40.14, 85.22},
     ["tuber2"] = {50.58, 18.26},
@@ -26,11 +26,20 @@ function FADEWT.WhipperRoot:Tick()
 end
 
 function FADEWT.WhipperRoot:GetMessageData()
-    return FADEWT.WhipperRoot.COMMKEY, WhipperRootTimers[FADEWT.RealmName]
+    local timers = {
+        ["tuber1"] = WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName]["tuber1"],
+        ["tuber2"] = WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName]["tuber2"],
+        ["tuber3"] = WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName]["tuber3"],
+        ["tuber4"] = WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName]["tuber4"],
+        ["tuber5"] = WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName]["tuber5"],
+        ["tuber6"] = WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName]["tuber6"]
+    }
+    
+    return FADEWT.WhipperRoot.COMMKEY, timers
 end
 
 function FADEWT.WhipperRoot.GetTimers()
-    return FADEWT.WhipperRoot.COMMKEY, WhipperRootTimers[FADEWT.RealmName]
+    return FADEWT.WhipperRoot.COMMKEY, WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName]
 end
 
 
@@ -38,19 +47,16 @@ function FADEWT.WhipperRoot.ReceiveTimers(message, distribution, sender)
     if not message then return end
     local didChange = false
     for key,timer in pairs(message) do
-        if timer ~= false and (WhipperRootTimers[FADEWT.RealmName][key] == nil or WhipperRootTimers[FADEWT.RealmName][key] == false) then
-            WhipperRootTimers[FADEWT.RealmName][key] = timer
+        if timer ~= false and (WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName][key] == nil or WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName][key] == false) then
+            WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName][key] = timer
             didChange = true
         end
-        if timer ~= false and WhipperRootTimers[FADEWT.RealmName][key] ~= false then
-            if timer > WhipperRootTimers[FADEWT.RealmName][key] then
-                WhipperRootTimers[FADEWT.RealmName][key] = timer
+        if timer ~= false and WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName][key] ~= false then
+            if timer > WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName][key] then
+                WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName][key] = timer
                 didChange = true
             end
         end
-    end
-    if didChange == true and sender ~= UnitName("player")  then
-        FADEWT.WhipperRoot:BroadcastTimers()
     end
 end
 
@@ -78,13 +84,13 @@ end
 -- Gets status text of a given Root
 -- If it's got a cooldown on it, or no status
 function FADEWT.WhipperRoot:getRootStatus(key, f)
-    local RootTime = WhipperRootTimers[FADEWT.RealmName][key]
+    local RootTime = WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName][key]
     local currTime = GetServerTime()
     if RootTime then
         if RootTime <= currTime then
             if RootTime < currTime + (60 * 3) then
                 RootTime = nil
-                WhipperRootTimers[FADEWT.RealmName][key] = false
+                WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName][key] = false
             end
             f.title:SetTextColor(0, 1, 0, 1)
             return "Ready?"
@@ -131,7 +137,7 @@ end
 -- Sends a broadcast if we have any timers to broadcast
 function FADEWT.WhipperRoot:SendBroadcastIfActiveTimer()
     local shouldBroadcast = false
-    for key,timer in pairs(WhipperRootTimers[FADEWT.RealmName]) do
+    for key,timer in pairs(WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName]) do
         if timer then
             shouldBroadcast = true
         end
@@ -173,7 +179,7 @@ end
 function FADEWT.WhipperRoot:PickWhipperRoot(key)
     local currTime = GetServerTime()
     local cdTime = currTime + (25 * 60)
-    WhipperRootTimers[FADEWT.RealmName][key] = cdTime
+    WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName][key] = cdTime
     FADEWT.WhipperRoot:BroadcastTimers()
 end
 
@@ -231,11 +237,16 @@ end
 function FADEWT.WhipperRoot:SetupDB()
     if WhipperRootTimers == nil then
         WhipperRootTimers = {}
-        WhipperRootTimers[FADEWT.RealmName] = {}
+        WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY]= {}
+        WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName] = {}
     end
-    if WhipperRootTimers[FADEWT.RealmName] == nil then
-        WhipperRootTimers[FADEWT.RealmName] = {}
+    if WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY] == nil then
+        WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY] = {}
     end
+    if WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName] == nil then
+        WhipperRootTimers[FADEWT.WhipperRoot.COMMKEY][FADEWT.RealmName] = {}
+    end
+    WhipperRootTimers[FADEWT.RealmName] = nil
 end
 
 -- Register our World Timer
