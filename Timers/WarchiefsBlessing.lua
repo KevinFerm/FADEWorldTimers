@@ -115,8 +115,6 @@ function FADEWT.WCB:OnUnitAura(unit)
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                
-                print((expirationTime - currTime), (60 * 60) - 1, currTime, FADEWT.InitTime + 2)
                 if ((expirationTime - currTime) >= (60 * 60) - 1) and (currTime > (FADEWT.InitTime + 2)) then
                     
                     FADEWT.WCB:ReceiveWCBBuff()
