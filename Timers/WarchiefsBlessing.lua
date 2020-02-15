@@ -21,7 +21,9 @@ function FADEWT.WCB:Tick()
 end
 
 function FADEWT.WCB:GetMessageData()
-    return FADEWT.WCB.COMMKEY, WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName]["1454"]
+    local timer = {}
+    timer["1454"] = WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName]["1454"]
+    return FADEWT.WCB.COMMKEY, timer
 end
 
 function FADEWT.WCB:GetTimerStatus(key, f)
@@ -62,6 +64,9 @@ function FADEWT.WCB.ReceiveTimers(message, distribution, sender)
     --local ok, receivedTimers = Serializer:Deserialize(message);
     if not message then return end
     local didChange = false
+    if type(message) ~= "table" then
+        return
+    end
     local currTime = GetServerTime()
     for key,timer in pairs(message) do
         if timer ~= false and (WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] == nil or WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] == false) then
