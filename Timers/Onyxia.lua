@@ -120,7 +120,7 @@ end]]
 
 function FADEWT.Onyxia:OnMsgMonsterYell( npc )
     --print("ONYXIA npc : " .. npc)
-    if npc == "Overlord Runthak" then
+    if npc == "Overlord Runthak" or npc == "Major Mattingly" then
         local zId, zT = HBD:GetPlayerZone()
         FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
         FADEWT.Onyxia:SendBroadcastIfActiveTimer()

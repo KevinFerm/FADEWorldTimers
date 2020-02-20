@@ -120,7 +120,7 @@ end]]
 
 function FADEWT.Nefarian:OnMsgMonsterYell( npc )
     --print("NEFARIAN npc : " .. npc)
-    if npc == "High Overlord Saurfang" then
+    if npc == "High Overlord Saurfang" or npc == "Field Marshal Afrasiabi"then
         local zId, zT = HBD:GetPlayerZone()
         FADEWT.Nefarian:ReceiveNefarianBuff(tostring(zId))
         FADEWT.Nefarian:SendBroadcastIfActiveTimer()
