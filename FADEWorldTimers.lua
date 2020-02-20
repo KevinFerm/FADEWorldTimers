@@ -30,6 +30,7 @@ function FADEWT:Init()
     -- Register event on UNIT_AURA so we can check if player got Songflower
     Frame:RegisterEvent("UNIT_AURA")
     Frame:RegisterEvent("CHAT_MSG_LOOT")
+    Frame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
     Frame:SetScript("OnEvent", FADEWT.HandleEvent)
     Comm:RegisterComm(FADEWT.COMMKEY, FADEWT.HandleMessage)
     --Comm:RegisterComm("FADEWorldTimers", FADEWT.RecvTimers)
@@ -51,6 +52,21 @@ function FADEWT:HandleEvent(event, ...)
 
     if event == "CHAT_MSG_LOOT" then
         FADEWT:OnChatMsgLoot(self, ...)
+    end
+
+    if event == "CHAT_MSG_MONSTER_YELL" then
+        FADEWT:OnChatMsgMonsterYell(self, ...)
+    end
+end
+
+function FADEWT:OnChatMsgMonsterYell(self, ...)
+    local msg, npc = ...
+    --print("msg " .. msg)
+    --print("npc " .. npc)
+    for _, Timer in ipairs(FADEWT.WorldTimers) do
+        if Timer.OnMsgMonsterYell ~= nil then
+            Timer:OnMsgMonsterYell(npc)
+        end
     end
 end
 

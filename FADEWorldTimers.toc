@@ -3,7 +3,7 @@
 ## Author: Netzone
 ## Version: 1.0
 ## DefaultState: Enabled
-## SavedVariables: SongflowerTimers, WhipperRootTimers, OnyxiaTimers, WCBTimers, FADEWTConfig
+## SavedVariables: SongflowerTimers, WhipperRootTimers, OnyxiaTimers, NefarianTimers, WCBTimers, FADEWTConfig
 Libs\main.xml
 
 FADEWorldTimers.lua
@@ -11,5 +11,6 @@ Timers\Songflower.lua
 Timers\WarchiefsBlessing.lua
 Timers\Onyxia.lua
 Timers\WhipperRoot.lua
+Timers\Nefarian.lua
 
 Config.lua

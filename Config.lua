@@ -36,6 +36,14 @@ local options = {
             get = function() return FADEWTConfig.OnyxiaHidden end,
             set = function(_, value) FADEWTConfig.OnyxiaHidden = value; ReloadUI() end,
         },
+        Nefarian = {
+            order = 0,
+            type = "toggle",
+            name = "Hide Nefarian timers",
+            desc = "If checked Nefarian timers are hidden",
+            get = function() return FADEWTConfig.NefarianHidden end,
+            set = function(_, value) FADEWTConfig.NefarianHidden = value; ReloadUI() end,
+        },
         BroadcastYELL = {
             order = 0,
             type = "toggle",

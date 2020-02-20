@@ -13,7 +13,7 @@ FADEWT.Onyxia.Frames = {}
 FADEWT.Onyxia.COMMKEY = "FADEWT-ONY3"
 FADEWT.Onyxia.Locations = {
     ["1453"] = {60.50, 75.20},
-    ["1454"] = {51.73, 77.69},
+    ["1454"] = {51.73, 80},
 }
 
 function FADEWT.Onyxia:Tick()
@@ -97,7 +97,7 @@ function FADEWT.Onyxia:ReceiveOnyxiaBuff(key)
     FADEWT.Onyxia:BroadcastTimers()
 end
 
-function FADEWT.Onyxia:OnUnitAura(unit)
+--[[function FADEWT.Onyxia:OnUnitAura(unit)
     if unit == "player" then
         local name, expirationTime, sid, _
         -- Todo: Check if this causes issues
@@ -116,8 +116,16 @@ function FADEWT.Onyxia:OnUnitAura(unit)
         end
         FADEWT.Onyxia:SendBroadcastIfActiveTimer()
     end
-end
+end]]
 
+function FADEWT.Onyxia:OnMsgMonsterYell( npc )
+    --print("ONYXIA npc : " .. npc)
+    if npc == "Overlord Runthak" then
+        local zId, zT = HBD:GetPlayerZone()
+        FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
+        FADEWT.Onyxia:SendBroadcastIfActiveTimer()
+    end
+end
 
 -- Create an empty object if none exist
 function FADEWT.Onyxia:SetupDB()
