@@ -6,6 +6,8 @@
 ## SavedVariables: SongflowerTimers, WhipperRootTimers, OnyxiaTimers, NefarianTimers, WCBTimers, FADEWTConfig
 Libs\main.xml
 
+Locale\Locales.xml
+
 FADEWorldTimers.lua
 Timers\Songflower.lua
 Timers\WarchiefsBlessing.lua

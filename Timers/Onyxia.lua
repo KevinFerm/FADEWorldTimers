@@ -4,6 +4,8 @@ local HBD = LibStub("HereBeDragons-2.0")
 local Comm = LibStub("AceComm-3.0")
 local Serializer = LibStub("AceSerializer-3.0")
 
+local L = LibStub("AceLocale-3.0"):GetLocale("FADEWT")
+
 FADEWT.Onyxia = {}
 FADEWT.Onyxia.Icon = "Interface\\Icons\\Inv_misc_head_dragon_01"
 FADEWT.Onyxia.LastEventAt = GetServerTime() - 10
@@ -120,7 +122,7 @@ end]]
 
 function FADEWT.Onyxia:OnMsgMonsterYell( npc )
     --print("ONYXIA npc : " .. npc)
-    if npc == "Overlord Runthak" or npc == "Major Mattingly" then
+    if npc == L["Overlord Runthak"] or npc == L["Major Mattingly"] then
         local zId, zT = HBD:GetPlayerZone()
         FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
         FADEWT.Onyxia:SendBroadcastIfActiveTimer()

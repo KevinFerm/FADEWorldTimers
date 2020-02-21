@@ -4,6 +4,9 @@ local HBD = LibStub("HereBeDragons-2.0")
 local Comm = LibStub("AceComm-3.0")
 local Serializer = LibStub("AceSerializer-3.0")
 
+local L = LibStub("AceLocale-3.0"):GetLocale("FADEWT")
+
+
 FADEWT.Nefarian = {}
 FADEWT.Nefarian.Icon = "Interface\\Icons\\Inv_misc_head_dragon_black"
 FADEWT.Nefarian.LastEventAt = GetServerTime() - 10
@@ -120,7 +123,7 @@ end]]
 
 function FADEWT.Nefarian:OnMsgMonsterYell( npc )
     --print("NEFARIAN npc : " .. npc)
-    if npc == "High Overlord Saurfang" or npc == "Field Marshal Afrasiabi"then
+    if npc == L["High Overlord Saurfang"] or npc == L["Field Marshal Afrasiabi"] then
         local zId, zT = HBD:GetPlayerZone()
         FADEWT.Nefarian:ReceiveNefarianBuff(tostring(zId))
         FADEWT.Nefarian:SendBroadcastIfActiveTimer()
