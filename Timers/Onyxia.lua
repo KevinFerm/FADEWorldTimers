@@ -17,6 +17,7 @@ FADEWT.Onyxia.Locations = {
     ["1453"] = {60.50, 75.20},
     ["1454"] = {51.73, 80},
 }
+FADEWT.Onyxia.YellTime = 0
 
 function FADEWT.Onyxia:Tick()
     for key, frame in pairs(FADEWT.Onyxia.Frames) do
@@ -99,7 +100,7 @@ function FADEWT.Onyxia:ReceiveOnyxiaBuff(key)
     FADEWT.Onyxia:BroadcastTimers()
 end
 
---[[function FADEWT.Onyxia:OnUnitAura(unit)
+function FADEWT.Onyxia:OnUnitAura(unit)
     if unit == "player" then
         local name, expirationTime, sid, _
         -- Todo: Check if this causes issues
@@ -110,7 +111,7 @@ end
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                if ((expirationTime - currTime) >= (60 * 120) - 1) and (currTime > (FADEWT.InitTime + 2)) then
+                if ((expirationTime - currTime) >= (60 * 120) - 1) and (currTime > (FADEWT.InitTime + 2)) and ((currTime - FADEWT.Onyxia.YellTime) < 100) then
                     local zId, zT = HBD:GetPlayerZone()
                     FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
                 end
@@ -118,14 +119,15 @@ end
         end
         FADEWT.Onyxia:SendBroadcastIfActiveTimer()
     end
-end]]
+end
 
 function FADEWT.Onyxia:OnMsgMonsterYell( npc )
     --print("ONYXIA npc : " .. npc)
     if npc == L["Overlord Runthak"] or npc == L["Major Mattingly"] then
-        local zId, zT = HBD:GetPlayerZone()
-        FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
-        FADEWT.Onyxia:SendBroadcastIfActiveTimer()
+        --local zId, zT = HBD:GetPlayerZone()
+        --FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
+        --FADEWT.Onyxia:SendBroadcastIfActiveTimer()
+        FADEWT.Onyxia.YellTime = GetTime()
     end
 end
 

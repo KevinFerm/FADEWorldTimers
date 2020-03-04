@@ -18,6 +18,7 @@ FADEWT.Nefarian.Locations = {
     ["1453"] = {64.9, 70},
     ["1454"] = {51.73, 75},
 }
+FADEWT.Nefarian.YellTime = 0
 
 function FADEWT.Nefarian:Tick()
     for key, frame in pairs(FADEWT.Nefarian.Frames) do
@@ -100,7 +101,7 @@ function FADEWT.Nefarian:ReceiveNefarianBuff(key)
     FADEWT.Nefarian:BroadcastTimers()
 end
 
---[[function FADEWT.Nefarian:OnUnitAura(unit)
+function FADEWT.Nefarian:OnUnitAura(unit)
     if unit == "player" then
         local name, expirationTime, sid, _
         -- Todo: Check if this causes issues
@@ -111,7 +112,7 @@ end
                 local currTime = GetTime()
 
                 -- Check if Sonflower has just been applied
-                if ((expirationTime - currTime) >= (60 * 120) - 1) and (currTime > (FADEWT.InitTime + 2)) then
+                if ((expirationTime - currTime) >= (60 * 120) - 1) and (currTime > (FADEWT.InitTime + 2)) and ((currTime - FADEWT.Nefarian.YellTime) < 100) then
                     local zId, zT = HBD:GetPlayerZone()
                     FADEWT.Nefarian:ReceiveNefarianBuff(tostring(zId))
                 end
@@ -119,14 +120,15 @@ end
         end
         FADEWT.Nefarian:SendBroadcastIfActiveTimer()
     end
-end]]
+end
 
 function FADEWT.Nefarian:OnMsgMonsterYell( npc )
     --print("NEFARIAN npc : " .. npc)
     if npc == L["High Overlord Saurfang"] or npc == L["Field Marshal Afrasiabi"] then
-        local zId, zT = HBD:GetPlayerZone()
-        FADEWT.Nefarian:ReceiveNefarianBuff(tostring(zId))
-        FADEWT.Nefarian:SendBroadcastIfActiveTimer()
+        --local zId, zT = HBD:GetPlayerZone()
+        --FADEWT.Nefarian:ReceiveNefarianBuff(tostring(zId))
+        --FADEWT.Nefarian:SendBroadcastIfActiveTimer()
+        FADEWT.Nefarian.YellTime = GetTime()
     end
 end
 
