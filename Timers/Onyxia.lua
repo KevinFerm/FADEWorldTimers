@@ -114,6 +114,7 @@ function FADEWT.Onyxia:OnUnitAura(unit)
                 if ((expirationTime - currTime) >= (60 * 120) - 1) and (currTime > (FADEWT.InitTime + 2)) and ((currTime - FADEWT.Onyxia.YellTime) < 100) then
                     local zId, zT = HBD:GetPlayerZone()
                     FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
+                    FADEWT.Onyxia.YellTime = 0
                 end
             end
         end

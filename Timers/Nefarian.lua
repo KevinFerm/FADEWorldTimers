@@ -115,6 +115,7 @@ function FADEWT.Nefarian:OnUnitAura(unit)
                 if ((expirationTime - currTime) >= (60 * 120) - 1) and (currTime > (FADEWT.InitTime + 2)) and ((currTime - FADEWT.Nefarian.YellTime) < 100) then
                     local zId, zT = HBD:GetPlayerZone()
                     FADEWT.Nefarian:ReceiveNefarianBuff(tostring(zId))
+                    FADEWT.Nefarian.YellTime = 0
                 end
             end
         end
