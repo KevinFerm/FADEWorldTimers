@@ -12,7 +12,7 @@ local Comm = LibStub("AceComm-3.0")
 FADEWT.WorldTimers = {}
 
 FADEWT.MessageCallbacks = {}
-FADEWT.COMMKEY = "FADEWT-3"
+FADEWT.COMMKEY = "FADEWT-4"
 FADEWT.LastEventAt = GetServerTime() - 20
 FADEWT.InitTime = GetTime()
 FADEWT.RealmName = GetRealmName()

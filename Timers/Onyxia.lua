@@ -12,7 +12,7 @@ FADEWT.Onyxia.LastEventAt = GetServerTime() - 10
 
 FADEWT.Onyxia.TimerLength = (60 * 60) * 6
 FADEWT.Onyxia.Frames = {}
-FADEWT.Onyxia.COMMKEY = "FADEWT-ONY3"
+FADEWT.Onyxia.COMMKEY = "FADEWT-ONY4"
 FADEWT.Onyxia.Locations = {
     ["1453"] = {60.50, 75.20},
     ["1454"] = {51.73, 80},

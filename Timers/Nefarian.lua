@@ -13,7 +13,7 @@ FADEWT.Nefarian.LastEventAt = GetServerTime() - 10
 
 FADEWT.Nefarian.TimerLength = (60 * 60) * 8 -- Nefarian has 8 hour cooldown
 FADEWT.Nefarian.Frames = {}
-FADEWT.Nefarian.COMMKEY = "FADEWT-NEF3"
+FADEWT.Nefarian.COMMKEY = "FADEWT-NEF4"
 FADEWT.Nefarian.Locations = {
     ["1453"] = {64.9, 70},
     ["1454"] = {51.73, 75},
