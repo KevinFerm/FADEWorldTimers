@@ -45,8 +45,19 @@ function FADEWT.Songflower.GetTimers()
     return FADEWT.Songflower.COMMKEY, flowers
 end
 
+-- Sends report of what flowers are available when
+function FADEWT.Songflower.SendReport()
+    local _, timers = FADEWT.Songflower.GetTimers()
+    for key,timer in pairs(timers) do
+        if timer ~= false and timer ~= nil then
+            local loc = FADEWT.Songflower.Locations[key]
+            print("Songflower at " .. tostring(loc[1]) .. "," .. tostring(loc[2]) .. " available at " .. date('%Y-%m-%d %H:%M:%S', timer))
+        end
+    end
+end
+
 function FADEWT.Songflower:GetMessageData()
-    return FADEWT.Songflower.COMMKEY, SongflowerTimers[FADEWT.Songflower.COMMKEY][FADEWT.RealmName]
+    return FADEWT.Songflower.GetTimers()
 end
 
 function FADEWT.Songflower.ReceiveTimers(message, distribution, sender)

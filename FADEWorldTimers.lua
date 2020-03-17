@@ -12,33 +12,54 @@ local Comm = LibStub("AceComm-3.0")
 FADEWT.WorldTimers = {}
 
 FADEWT.MessageCallbacks = {}
-FADEWT.COMMKEY = "FADEWT-4"
-FADEWT.LastEventAt = GetServerTime() - 20
+FADEWT.COMMKEY = "FADEWT-4" -- CHANGE BACK TO 4
+FADEWT.LastEventAt = GetServerTime() - 60
+FADEWT.LastYellAt = GetServerTime() - 380
 FADEWT.InitTime = GetTime()
 FADEWT.RealmName = GetRealmName()
+FADEWT.Faction, _ = UnitFactionGroup("player")
+
 -- Initializes our addon
 function FADEWT:Init()
     -- Create an empty DB if need be
     FADEWT:SetupDB()
 
-    --Songbird:createNodes()
     local Frame = CreateFrame("Frame", nil, UIParent)
 
-    -- Update the active songflower timers every second
+    -- Update the active timers every second
     AceTimer:ScheduleRepeatingTimer(FADEWT.Tick, 1)
 
-    -- Register event on UNIT_AURA so we can check if player got Songflower
+    -- Every 300 seconds try and send message
+    -- Should keep timers fresh
+    AceTimer:ScheduleRepeatingTimer(FADEWT.SendMessage, 300)
+
+    -- Register event on UNIT_AURA so we can check if player got timer
     Frame:RegisterEvent("UNIT_AURA")
     Frame:RegisterEvent("CHAT_MSG_LOOT")
     Frame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
+    Frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     Frame:SetScript("OnEvent", FADEWT.HandleEvent)
     Comm:RegisterComm(FADEWT.COMMKEY, FADEWT.HandleMessage)
-    --Comm:RegisterComm("FADEWorldTimers", FADEWT.RecvTimers)
 
     for _,Timer in ipairs(FADEWT.WorldTimers) do
         if Timer.Init ~= nil then
             Timer:Init()
         end
+    end
+end
+
+SLASH_FADEWTCMD1 = '/fade';
+function SlashCmdList.FADEWTCMD(cmd, editBox)
+    if cmd == "print" then
+        FADEWT.SendReport()
+    else
+        print("Welcome to FADE World Timers")
+        print("Currently we have timers for:")
+        print("Onyxia, Nefarian, Songflower, WCB, Whipper Root Tubers")
+        print("----------")
+        print("Available Commands:")
+        print("print - Prints a list of all active timers and the time left")
     end
 end
 
@@ -57,12 +78,19 @@ function FADEWT:HandleEvent(event, ...)
     if event == "CHAT_MSG_MONSTER_YELL" then
         FADEWT:OnChatMsgMonsterYell(self, ...)
     end
+
+    -- Broadcast message when entering world
+    if event == "PLAYER_ENTERING_WORLD" then
+        FADEWT:SendMessage()
+    end
+
+    if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+        FADEWT:OnUnfilteredCombatLogEvent(self, ...)
+    end
 end
 
 function FADEWT:OnChatMsgMonsterYell(self, ...)
     local msg, npc = ...
-    --print("msg " .. msg)
-    --print("npc " .. npc)
     for _, Timer in ipairs(FADEWT.WorldTimers) do
         if Timer.OnMsgMonsterYell ~= nil then
             Timer:OnMsgMonsterYell(npc)
@@ -70,6 +98,7 @@ function FADEWT:OnChatMsgMonsterYell(self, ...)
     end
 end
 
+-- Called when loot is received
 function FADEWT:OnChatMsgLoot(self, ...)
     for _,Timer in ipairs(FADEWT.WorldTimers) do
         if Timer.OnChatMsgLoot ~= nil then
@@ -100,6 +129,24 @@ function FADEWT:Tick()
     end
 end
 
+-- Can check when certain combat log events happen
+function FADEWT:OnUnfilteredCombatLogEvent(event)
+    for _, Timer in ipairs(FADEWT.WorldTimers) do
+        if Timer.OnUnfilteredCombatLogEvent ~= nil then
+            Timer.OnUnfilteredCombatLogEvent(event, CombatLogGetCurrentEventInfo())
+        end
+    end
+end
+
+-- Function to print a report of all timers currectly active
+function FADEWT.SendReport()
+    for _, Timer in ipairs(FADEWT.WorldTimers) do
+        if Timer.SendReport ~= nil then
+            Timer.SendReport()
+        end
+    end
+end
+
 -- Fires the OnUnitAura on every WorldTimer that has the function when UNIT_AURA event is fired
 function FADEWT:OnUnitAura(self, unit)
     for _,Timer in ipairs(FADEWT.WorldTimers) do
@@ -125,6 +172,11 @@ function FADEWT:HandleMessage(message, distribution, sender)
         end
     end
 end
+
+function FADEWT:ConvertTimestampToHumanReadable()
+    return nil
+end
+
 -- Debug message
 function FADEWT.Debug(...)
     if FADEWTConfig.Debug == true then
@@ -136,7 +188,7 @@ end
 -- Avoids spamming the chat and getting errors because of it
 -- Timer needs function GetMessageData before the object is sent
 function FADEWT:SendMessage(force)
-    if ((GetServerTime() - FADEWT.LastEventAt) <= 20) and (force ~= true) then return end
+    if ((GetServerTime() - FADEWT.LastEventAt) <= 60) and (force ~= true) then return end
     FADEWT.LastEventAt = GetServerTime()
     local messageData = {}
 
@@ -152,8 +204,9 @@ function FADEWT:SendMessage(force)
 
     FADEWT.Debug("Broadcasting timers")
     -- TODO: Enable when I'm sure what causes the bugs
-    if FADEWTConfig.YellDisabled ~= true then
-        -- Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
+    if FADEWTConfig.YellDisabled ~= true and (GetServerTime() - FADEWT.LastYellAt) >= 380 then
+        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
+        FADEWT.LastYellAt = GetServerTime()
     end
 
     if (IsInRaid() and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)) then

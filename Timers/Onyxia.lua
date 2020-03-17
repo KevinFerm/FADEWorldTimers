@@ -25,6 +25,24 @@ function FADEWT.Onyxia:Tick()
     end
 end
 
+function FADEWT.Onyxia.SendReport()
+    if FADEWT.Faction == "Horde" then
+        local timer = OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName]["1454"]
+        if timer == nil or timer == false then
+            print("No Onyxia timer available")
+            return nil
+        end
+       print("Onyxia ready at - ", date('%Y-%m-%d %H:%M:%S', OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName]["1454"]) )
+    else
+        local timer = OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName]["1453"]
+        if timer == nil or timer == false then
+            print("No Onyxia timer available")
+            return nil
+        end
+        print("Onyxia ready at - ", date('%Y-%m-%d %H:%M:%S', OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName]["1453"]) )
+    end
+end
+
 function FADEWT.Onyxia:GetTimerStatus(key, f)
     local onyxiaTime = OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName][key]
     local currTime = GetServerTime()
@@ -123,11 +141,7 @@ function FADEWT.Onyxia:OnUnitAura(unit)
 end
 
 function FADEWT.Onyxia:OnMsgMonsterYell( npc )
-    --print("ONYXIA npc : " .. npc)
     if npc == L["Overlord Runthak"] or npc == L["Major Mattingly"] then
-        --local zId, zT = HBD:GetPlayerZone()
-        --FADEWT.Onyxia:ReceiveOnyxiaBuff(tostring(zId))
-        --FADEWT.Onyxia:SendBroadcastIfActiveTimer()
         FADEWT.Onyxia.YellTime = GetTime()
     end
 end

@@ -26,6 +26,16 @@ function FADEWT.WCB:GetMessageData()
     return FADEWT.WCB.COMMKEY, timer
 end
 
+function FADEWT.WCB.SendReport()
+    local timer = WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName]["1454"]
+    if timer == nil or timer == false then
+        print("No WCB timer available")
+        return nil
+    end
+    print("WCB ready at - ", date('%Y-%m-%d %H:%M:%S', WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName]["1454"]) )
+
+end
+
 function FADEWT.WCB:GetTimerStatus(key, f)
     local WCBTime = WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key]
     local currTime = GetServerTime()

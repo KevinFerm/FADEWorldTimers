@@ -151,7 +151,6 @@ end
 function FADEWT.WhipperRoot.OnChatMsgLoot(...)
     local lootstring, _, _, _, player = ...
     local itemID = lootstring:match("|Hitem:(%d+)")
-    FADEWT.Debug("Recv item ", itemID)
     if itemID == 11951 or itemID == "11951" then
         local zId, zT = HBD:GetPlayerZone()
         -- Validate zone just in case

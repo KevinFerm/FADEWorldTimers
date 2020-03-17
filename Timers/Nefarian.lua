@@ -26,6 +26,24 @@ function FADEWT.Nefarian:Tick()
     end
 end
 
+function FADEWT.Nefarian.SendReport()
+    if FADEWT.Faction == "Horde" then
+        local timer =  NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName]["1454"]
+        if timer == nil or timer == false then
+            print("No Nefarian timer available")
+            return nil
+        end
+       print("Nefarian ready at - ", date('%Y-%m-%d %H:%M:%S', NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName]["1454"]) )
+    else
+        local timer =  NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName]["1453"]
+        if timer == nil or timer == false then
+            print("No Nefarian timer available")
+            return nil
+        end
+        print("Nefarian ready at - ", date('%Y-%m-%d %H:%M:%S', NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName]["1453"]) )
+    end
+end
+
 function FADEWT.Nefarian:GetTimerStatus(key, f)
     local nefarianTime = NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName][key]
     local currTime = GetServerTime()
