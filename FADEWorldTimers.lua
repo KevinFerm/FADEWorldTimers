@@ -12,12 +12,14 @@ local Comm = LibStub("AceComm-3.0")
 FADEWT.WorldTimers = {}
 
 FADEWT.MessageCallbacks = {}
-FADEWT.COMMKEY = "FADEWT-4" -- CHANGE BACK TO 4
+FADEWT.COMMKEY = "FADEWT-5" -- CHANGE BACK TO 4
 FADEWT.LastEventAt = GetServerTime() - 60
 FADEWT.LastYellAt = GetServerTime() - 380
 FADEWT.InitTime = GetTime()
 FADEWT.RealmName = GetRealmName()
 FADEWT.Faction, _ = UnitFactionGroup("player")
+FADEWT.VERSION = 129
+FADEWT.VERSIONCHECK = 0
 
 -- Initializes our addon
 function FADEWT:Init()
@@ -166,6 +168,22 @@ function FADEWT:HandleMessage(message, distribution, sender)
     local ok, decodedMessage = Serializer:Deserialize(message);
     if not ok or not decodedMessage then return false end
     if sender == UnitName("player") then return false end
+
+    -- Validate if sender is from the same realm as us. Don't continue if not.
+    local charName, realm = strsplit("-", sender, 2)
+    if realm ~= nil then
+        FADEWT.Debug("Message from: ", charName, realm)
+        return false
+    end
+
+    if decodedMessage["version"] ~= nil then
+        local version = decodedMessage["version"]
+        if (version > FADEWT.VERSION) and (GetServerTime() > (FADEWT.VERSIONCHECK + 12000)) then
+            print("|cFFD13300[FADE World Timers] Your version is out of date - Please download the newest version on Curseforge or through the Twitch Client")
+            FADEWT.VERSIONCHECK = GetServerTime()
+        end
+    end
+
     for key,timers in pairs(decodedMessage) do
         if FADEWT.MessageCallbacks[key] ~= nil then
             FADEWT.MessageCallbacks[key](timers, distribution, sender)
@@ -192,6 +210,8 @@ function FADEWT:SendMessage(force)
     FADEWT.LastEventAt = GetServerTime()
     local messageData = {}
 
+    messageData["version"] = FADEWT.VERSION
+
     -- Loop through every timer and get the data they want to send
     for _,Timer in ipairs(FADEWT.WorldTimers) do
         if Timer.GetMessageData ~= nil then
@@ -205,7 +225,7 @@ function FADEWT:SendMessage(force)
     FADEWT.Debug("Broadcasting timers")
     -- TODO: Enable when I'm sure what causes the bugs
     if FADEWTConfig.YellDisabled ~= true and (GetServerTime() - FADEWT.LastYellAt) >= 380 then
-        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL");
+        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "YELL", nil, "BULK");
         FADEWT.LastYellAt = GetServerTime()
     end
 
@@ -214,7 +234,7 @@ function FADEWT:SendMessage(force)
     end
 
     if (GetGuildInfo("player") ~= nil) then
-        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "GUILD");
+        Comm:SendCommMessage(FADEWT.COMMKEY , serializedMessageData, "GUILD", nil, "BULK");
     end
 end
 
