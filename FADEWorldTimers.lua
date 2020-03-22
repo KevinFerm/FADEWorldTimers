@@ -49,6 +49,9 @@ function FADEWT:Init()
             Timer:Init()
         end
     end
+    
+    -- Save current version so we can use it to clear timers from old versions when you update
+    FADEWTConfig.Version = FADEWT.VERSION
 end
 
 SLASH_FADEWTCMD1 = '/fade';
@@ -180,7 +183,14 @@ function FADEWT:HandleMessage(message, distribution, sender)
         local version = decodedMessage["version"]
         if (version > FADEWT.VERSION) and (GetServerTime() > (FADEWT.VERSIONCHECK + 12000)) then
             print("|cFFD13300[FADE World Timers] Your version is out of date - Please download the newest version on Curseforge or through the Twitch Client")
+            print("|cFFD13300Using an older version, you will not be able to share your timers with newer versions of the addon.")
             FADEWT.VERSIONCHECK = GetServerTime()
+        end
+
+        -- Don't receive updated timers from people with older versions of the addon.
+        if (version < FADEWT.VERSION) then
+            FADEWT.Debug("Stopped a message from ", sender, " with version: ", version)
+            return false
         end
     end
 
@@ -262,6 +272,11 @@ function FADEWT:SetupDB()
         FADEWTConfig.SongflowerHidden = false
         FADEWTConfig.YellDisabled = false
         FADEWTConfig.Debug = false
+        FADEWTConfig.Version = FADEWT.VERSION
+    end
+
+    if FADEWTConfig.Version == nil then
+        FADEWTConfig.Version = FADEWT.VERSION - 1
     end
 
     for _, Timer in ipairs(FADEWT.WorldTimers) do

@@ -20,6 +20,14 @@ local options = {
             get = function() return FADEWTConfig.WhipperRootHidden end,
             set = function(_, value) FADEWTConfig.WhipperRootHidden = value; ReloadUI() end,
         },
+        NightDragon = {
+            order = 0,
+            type = "toggle",
+            name = "Hide Night Dragon timers",
+            desc = "If checked Night Dragon are hidden",
+            get = function() return FADEWTConfig.NightDragonHidden end,
+            set = function(_, value) FADEWTConfig.NightDragonHidden = value; ReloadUI() end,
+        },
         WCB = {
             order = 0,
             type = "toggle",

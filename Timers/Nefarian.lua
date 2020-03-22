@@ -97,6 +97,7 @@ function FADEWT.Nefarian.ReceiveTimers(message, distribution, sender)
             --FADEWT.Debug("RECV ONY TIMER", timer, (currTime + FADEWT.Nefarian.TimerLength + 10) > timer)
             if (currTime + FADEWT.Nefarian.TimerLength + 20) > timer then
                 NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName][key] = timer
+                FADEWT.Debug("Got new Nefarian timer from", sender, "through", distribution, " - timer: ", timer)
                 didChange = true
             end
         end
@@ -105,6 +106,7 @@ function FADEWT.Nefarian.ReceiveTimers(message, distribution, sender)
             if (timer > NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName][key]) and FADEWT.Nefarian.Locations[key] ~= nil then
                 if (currTime + FADEWT.Nefarian.TimerLength + 20) > timer then
                     NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName][key] = timer
+                    FADEWT.Debug("Got new Nefarian timer from", sender, "through", distribution, " - timer: ", timer)
                     didChange = true
                 end
             end
@@ -184,12 +186,25 @@ function FADEWT.Nefarian:CreateFrames()
     end
 end
 
+-- Clears all timers
+-- Used on new version to clear all old timers
+function FADEWT.Nefarian:ClearTimers()
+    NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName]["1453"] = 0
+    NefarianTimers[FADEWT.Nefarian.COMMKEY][FADEWT.RealmName]["1454"] = 0
+end
 
 function FADEWT.Nefarian:Init()
     if FADEWTConfig.NefarianHidden ~= true then
         FADEWT.Nefarian:CreateFrames()
     end
-    --Comm:RegisterComm("FADEWT-ONY", FADEWT.Nefarian.ReceiveTimers)
+
+    -- Clears timers when updating to a new version
+    -- This is to prevent issues with cross contamination
+    -- Versions without updated COMMKEY should still propagate fairly well, but it might prevent some issues
+    if FADEWT.VERSION > FADEWTConfig.Version then
+        FADEWT.Nefarian:ClearTimers()
+    end
+
     FADEWT:RegisterMessageHandler(FADEWT.Nefarian.COMMKEY, FADEWT.Nefarian.ReceiveTimers)
 end
 

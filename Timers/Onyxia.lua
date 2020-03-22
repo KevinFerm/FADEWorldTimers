@@ -96,6 +96,7 @@ function FADEWT.Onyxia.ReceiveTimers(message, distribution, sender)
             --FADEWT.Debug("RECV ONY TIMER", timer, (currTime + FADEWT.Onyxia.TimerLength + 10) > timer)
             if (currTime + FADEWT.Onyxia.TimerLength + 20) > timer then
                 OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName][key] = timer
+                FADEWT.Debug("Got new Onyxia timer from", sender, "through", distribution, " - timer: ", timer)
                 didChange = true
             end
         end
@@ -104,6 +105,7 @@ function FADEWT.Onyxia.ReceiveTimers(message, distribution, sender)
             if (timer > OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName][key]) and FADEWT.Onyxia.Locations[key] ~= nil then
                 if (currTime + FADEWT.Onyxia.TimerLength + 20) > timer then
                     OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName][key] = timer
+                    FADEWT.Debug("Got new Onyxia timer from", sender, "through", distribution, " - timer: ", timer)
                     didChange = true
                 end
             end
@@ -178,12 +180,25 @@ function FADEWT.Onyxia:CreateFrames()
     end
 end
 
+-- Clears all timers
+-- Used on new version to clear all old timers
+function FADEWT.Onyxia:ClearTimers()
+    OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName]["1453"] = 0
+    OnyxiaTimers[FADEWT.Onyxia.COMMKEY][FADEWT.RealmName]["1454"] = 0
+end
 
 function FADEWT.Onyxia:Init()
     if FADEWTConfig.OnyxiaHidden ~= true then
         FADEWT.Onyxia:CreateFrames()
     end
-    --Comm:RegisterComm("FADEWT-ONY", FADEWT.Onyxia.ReceiveTimers)
+
+    -- Clears timers when updating to a new version
+    -- This is to prevent issues with cross contamination
+    -- Versions without updated COMMKEY should still propagate fairly well, but it might prevent some issues
+    if FADEWT.VERSION > FADEWTConfig.Version then
+        FADEWT.Onyxia:ClearTimers()
+    end
+
     FADEWT:RegisterMessageHandler(FADEWT.Onyxia.COMMKEY, FADEWT.Onyxia.ReceiveTimers)
 end
 

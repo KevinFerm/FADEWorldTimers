@@ -83,6 +83,7 @@ function FADEWT.WCB.ReceiveTimers(message, distribution, sender)
             --FADEWT.Debug("RECV WCB TIMER", timer, (currTime + FADEWT.WCB.TimerLength + 10) > timer)
             if ((currTime + FADEWT.WCB.TimerLength + 10) > timer) and FADEWT.WCB.Locations[key] ~= nil then
                 WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] = timer
+                FADEWT.Debug("Got new WCB timer from", sender, "through", distribution, " - timer: ", timer)
                 didChange = true
             end
         end
@@ -91,6 +92,7 @@ function FADEWT.WCB.ReceiveTimers(message, distribution, sender)
             if timer > WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] then
                 if ((currTime + FADEWT.WCB.TimerLength + 10) > timer) and FADEWT.WCB.Locations[key] ~= nil then
                     WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName][key] = timer
+                    FADEWT.Debug("Got new WCB timer from", sender, "through", distribution, " - timer: ", timer)
                     didChange = true
                 end
             end
@@ -174,12 +176,24 @@ function FADEWT.WCB:CreateFrames()
     end
 end
 
+-- Clears all timers
+-- Used on new version to clear all old timers
+function FADEWT.WCB:ClearTimers()
+    WCBTimers[FADEWT.WCB.COMMKEY][FADEWT.RealmName]["1454"] = 0
+end
 
 function FADEWT.WCB:Init()
     if FADEWTConfig.WCBHidden ~= true then
         FADEWT.WCB:CreateFrames()
     end
-    --Comm:RegisterComm("FADEWT-WCB", FADEWT.WCB.ReceiveTimers)
+
+    -- Clears timers when updating to a new version
+    -- This is to prevent issues with cross contamination
+    -- Versions without updated COMMKEY should still propagate fairly well, but it might prevent some issues
+    if FADEWT.VERSION > FADEWTConfig.Version then
+        FADEWT.WCB:ClearTimers()
+    end
+
     FADEWT:RegisterMessageHandler(FADEWT.WCB.COMMKEY, FADEWT.WCB.ReceiveTimers)
 end
 

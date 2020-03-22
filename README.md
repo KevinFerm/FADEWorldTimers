@@ -14,7 +14,10 @@ When Horde or Alliance get the buff, a timer is put on your world map, and then 
 Same as above
 
 ## Whipper Root Tubers
-Felwood gathering timers are in the works, and currently we can sport both Whipper Root Tubers, and Songflowers!
+Felwood gathering timers are in the works, and currently we can sport both Whipper Root Tubers, Night Dragons and Songflowers!
+
+## Night Dragon
+Felwood gathering timers are in the works, and currently we can sport both Whipper Root Tubers, Night Dragons and Songflowers!
 
 ## Songflower
 It also keeps tracks of songflower timers!
