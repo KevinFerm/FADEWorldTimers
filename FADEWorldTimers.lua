@@ -18,7 +18,7 @@ FADEWT.LastYellAt = GetServerTime() - 380
 FADEWT.InitTime = GetTime()
 FADEWT.RealmName = GetRealmName()
 FADEWT.Faction, _ = UnitFactionGroup("player")
-FADEWT.VERSION = 129
+FADEWT.VERSION = 130
 FADEWT.VERSIONCHECK = 0
 
 -- Initializes our addon
